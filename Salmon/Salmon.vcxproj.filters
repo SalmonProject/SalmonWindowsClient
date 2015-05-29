@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files\vmimeNET">
+      <UniqueIdentifier>{faf7b7d4-1c5a-46e8-ad16-06cce2a3c0a4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainGUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createWindowsLocale.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createWindowsLogin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createWindowsMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createWindowsRegRec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createWindowsRegSoc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createWindowsWaiting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="localization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sha1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="control_softether.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="email.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="checkHTTPS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="salmon_globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="connect_attempt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hwnds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="salmon_config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="salmon_utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Wrapper\cCertVerifier.cpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Wrapper\cCommon.cpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Wrapper\cEmailBuilder.cpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Wrapper\cEmailParser.cpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Wrapper\cImap.cpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Wrapper\cPop3.cpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Wrapper\cSmtp.cpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClCompile>
+    <ClCompile Include="pipefile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="localization.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sha1.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="control_softether.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="email.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="salmon_constants.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="connect_attempt.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="salmon_globals.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hwnds.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="salmon_config.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="salmon_utility.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VPNInfo.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Wrapper\cCertVerifier.hpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Wrapper\cCommon.hpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Wrapper\cEmailBuilder.hpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Wrapper\cEmailParser.hpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Wrapper\cImap.hpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Wrapper\cPop3.hpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Wrapper\cSmtp.hpp">
+      <Filter>Source Files\vmimeNET</Filter>
+    </ClInclude>
+    <ClInclude Include="pipefile.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Wrapper\RootCA.txt" />
+    <Text Include="..\Wrapper\MimeTypes.txt" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,38 @@
+
+VMIME AUTHOR
+============
+
+Vincent Richard <vincent@vmime.org>
+Project owner and creator. VMime was created in 1998, and publicly released
+under the GNU GPL license in 2003.
+
+
+VMIME CONTRIBUTORS
+==================
+
+VMime is Open Source software, you are free and welcome to contribute!
+
+If you have a patch and you want it to be included into official VMime
+release, you have to release your patch into the public domain or assign
+the copyright to "VMime authors". You will then be credited in this
+AUTHORS file.
+
+ - Stefan Uhrig  <stefanuhrig@gmx.net>
+ - Rafael Fernandez <prf@adinet.com.uy>
+ - Xin Li <lixin3@staff.sina.com.cn>
+ - Benjamin Biron <benbiron@gmail.com>
+ - Bertrand Benoit <projettwk@users.sourceforge.net>
+ - Tim Teulings <rael@edge.ping.de>
+ - Georg Sauthoff <gsauthof@techfak.uni-bielefeld.de>
+ - Pierre Thierry <nowhere.man@levallois.eu.org> (patches for STL algorithms)
+ - Zarafa <http://developer.zarafa.com/VmimePatches>
+ - Bartek Szurgot <vempirelord@wp.pl, http://baszerr.org>
+ - Achim Brandt <http://sourceforge.net/users/a-brandt/>
+ - Mehmet Bozkurt <mehmet.bozkurt78@gmail.com> (OpenSSL support, ICU support)
+ - Anthony Dervish <antmd@mac.com>
+ 
+Please apologize if I have forgotten someone here.  ;)  Send me an email
+to <vincent@vmime.org> if you want your name to be listed.
+
+See Changelogs for full list.
+

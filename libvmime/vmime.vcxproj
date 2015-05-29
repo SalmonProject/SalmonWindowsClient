@@ -1,0 +1,574 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{637E7474-FCA1-4376-A4DC-A580878DA7FD}</ProjectGuid>
+    <RootNamespace>vmime</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120_xp</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>12.0.30501.0</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>Debug32\</OutDir>
+    <IntDir>Debug32\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>Debug64\</OutDir>
+    <IntDir>Debug64\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>Release32\</OutDir>
+    <IntDir>Release32\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>Release64\</OutDir>
+    <IntDir>Release64\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>src/vmime;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>src/vmime;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN64;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>src/vmime;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <AdditionalIncludeDirectories>src/vmime;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN64;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\vmime\address.cpp" />
+    <ClCompile Include="src\vmime\addressList.cpp" />
+    <ClCompile Include="src\vmime\attachmentHelper.cpp" />
+    <ClCompile Include="src\vmime\base.cpp" />
+    <ClCompile Include="src\vmime\body.cpp" />
+    <ClCompile Include="src\vmime\bodyPart.cpp" />
+    <ClCompile Include="src\vmime\bodyPartAttachment.cpp" />
+    <ClCompile Include="src\vmime\charset.cpp" />
+    <ClCompile Include="src\vmime\charsetConverter.cpp" />
+    <ClCompile Include="src\vmime\charsetConverterOptions.cpp" />
+    <ClCompile Include="src\vmime\charsetConverter_iconv.cpp" />
+    <ClCompile Include="src\vmime\charsetConverter_icu.cpp" />
+    <ClCompile Include="src\vmime\charsetConverter_idna.cpp" />
+    <ClCompile Include="src\vmime\charsetConverter_Win.cpp" />
+    <ClCompile Include="src\vmime\component.cpp" />
+    <ClCompile Include="src\vmime\constants.cpp" />
+    <ClCompile Include="src\vmime\contentDisposition.cpp" />
+    <ClCompile Include="src\vmime\contentDispositionField.cpp" />
+    <ClCompile Include="src\vmime\contentHandler.cpp" />
+    <ClCompile Include="src\vmime\contentTypeField.cpp" />
+    <ClCompile Include="src\vmime\context.cpp" />
+    <ClCompile Include="src\vmime\dateTime.cpp" />
+    <ClCompile Include="src\vmime\defaultAttachment.cpp" />
+    <ClCompile Include="src\vmime\disposition.cpp" />
+    <ClCompile Include="src\vmime\emailAddress.cpp" />
+    <ClCompile Include="src\vmime\emptyContentHandler.cpp" />
+    <ClCompile Include="src\vmime\encoding.cpp" />
+    <ClCompile Include="src\vmime\exception.cpp" />
+    <ClCompile Include="src\vmime\fileAttachment.cpp" />
+    <ClCompile Include="src\vmime\fileContentHandler.cpp" />
+    <ClCompile Include="src\vmime\generatedMessageAttachment.cpp" />
+    <ClCompile Include="src\vmime\generationContext.cpp" />
+    <ClCompile Include="src\vmime\header.cpp" />
+    <ClCompile Include="src\vmime\headerField.cpp" />
+    <ClCompile Include="src\vmime\headerFieldFactory.cpp" />
+    <ClCompile Include="src\vmime\headerFieldValue.cpp" />
+    <ClCompile Include="src\vmime\htmlTextPart.cpp" />
+    <ClCompile Include="src\vmime\mailbox.cpp" />
+    <ClCompile Include="src\vmime\mailboxField.cpp" />
+    <ClCompile Include="src\vmime\mailboxGroup.cpp" />
+    <ClCompile Include="src\vmime\mailboxList.cpp" />
+    <ClCompile Include="src\vmime\mdn\MDNHelper.cpp" />
+    <ClCompile Include="src\vmime\mdn\MDNInfos.cpp" />
+    <ClCompile Include="src\vmime\mdn\receivedMDNInfos.cpp" />
+    <ClCompile Include="src\vmime\mdn\sendableMDNInfos.cpp" />
+    <ClCompile Include="src\vmime\mediaType.cpp" />
+    <ClCompile Include="src\vmime\message.cpp" />
+    <ClCompile Include="src\vmime\messageBuilder.cpp" />
+    <ClCompile Include="src\vmime\messageId.cpp" />
+    <ClCompile Include="src\vmime\messageIdSequence.cpp" />
+    <ClCompile Include="src\vmime\messageParser.cpp" />
+    <ClCompile Include="src\vmime\misc\importanceHelper.cpp" />
+    <ClCompile Include="src\vmime\net\defaultConnectionInfos.cpp" />
+    <ClCompile Include="src\vmime\net\events.cpp" />
+    <ClCompile Include="src\vmime\net\folder.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPConnection.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPFolder.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPFolderStatus.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPMessage.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPMessagePart.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPMessagePartContentHandler.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPMessageStructure.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPServiceInfos.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPSStore.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPStore.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPTag.cpp" />
+    <ClCompile Include="src\vmime\net\imap\IMAPUtils.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\format\courierMaildirFormat.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\format\kmailMaildirFormat.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirFolder.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirFolderStatus.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirFormat.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirMessage.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirMessagePart.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirMessageStructure.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirServiceInfos.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirStore.cpp" />
+    <ClCompile Include="src\vmime\net\maildir\maildirUtils.cpp" />
+    <ClCompile Include="src\vmime\net\message.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="src\vmime\net\messageSet.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3Command.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3Connection.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3Folder.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3FolderStatus.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3Message.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3Response.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3ServiceInfos.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3SStore.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3Store.cpp" />
+    <ClCompile Include="src\vmime\net\pop3\POP3Utils.cpp" />
+    <ClCompile Include="src\vmime\net\sendmail\sendmailServiceInfos.cpp" />
+    <ClCompile Include="src\vmime\net\sendmail\sendmailTransport.cpp" />
+    <ClCompile Include="src\vmime\net\service.cpp" />
+    <ClCompile Include="src\vmime\net\serviceFactory.cpp" />
+    <ClCompile Include="src\vmime\net\serviceInfos.cpp" />
+    <ClCompile Include="src\vmime\net\session.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPChunkingOutputStreamAdapter.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPCommand.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPCommandSet.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPConnection.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPExceptions.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPResponse.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPServiceInfos.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPSTransport.cpp" />
+    <ClCompile Include="src\vmime\net\smtp\SMTPTransport.cpp" />
+    <ClCompile Include="src\vmime\net\tls\gnutls\TLSProperties_GnuTLS.cpp" />
+    <ClCompile Include="src\vmime\net\tls\gnutls\TLSSession_GnuTLS.cpp" />
+    <ClCompile Include="src\vmime\net\tls\gnutls\TLSSocket_GnuTLS.cpp" />
+    <ClCompile Include="src\vmime\net\tls\openssl\OpenSSLInitializer.cpp" />
+    <ClCompile Include="src\vmime\net\tls\openssl\TLSProperties_OpenSSL.cpp" />
+    <ClCompile Include="src\vmime\net\tls\openssl\TLSSession_OpenSSL.cpp" />
+    <ClCompile Include="src\vmime\net\tls\openssl\TLSSocket_OpenSSL.cpp" />
+    <ClCompile Include="src\vmime\net\tls\TLSProperties.cpp" />
+    <ClCompile Include="src\vmime\net\tls\TLSSecuredConnectionInfos.cpp" />
+    <ClCompile Include="src\vmime\net\tls\TLSSession.cpp" />
+    <ClCompile Include="src\vmime\net\tls\TLSSocket.cpp" />
+    <ClCompile Include="src\vmime\net\transport.cpp" />
+    <ClCompile Include="src\vmime\object.cpp" />
+    <ClCompile Include="src\vmime\parameter.cpp" />
+    <ClCompile Include="src\vmime\parameterizedHeaderField.cpp" />
+    <ClCompile Include="src\vmime\parsedMessageAttachment.cpp" />
+    <ClCompile Include="src\vmime\parsingContext.cpp" />
+    <ClCompile Include="src\vmime\path.cpp" />
+    <ClCompile Include="src\vmime\plainTextPart.cpp" />
+    <ClCompile Include="src\vmime\platform.cpp" />
+    <ClCompile Include="src\vmime\platforms\windows\windowsCriticalSection.cpp" />
+    <ClCompile Include="src\vmime\platforms\windows\windowsFile.cpp" />
+    <ClCompile Include="src\vmime\platforms\windows\windowsHandler.cpp" />
+    <ClCompile Include="src\vmime\platforms\windows\windowsSocket.cpp" />
+    <ClCompile Include="src\vmime\propertySet.cpp" />
+    <ClCompile Include="src\vmime\relay.cpp" />
+    <ClCompile Include="src\vmime\security\cert\certificateChain.cpp" />
+    <ClCompile Include="src\vmime\security\cert\defaultCertificateVerifier.cpp" />
+    <ClCompile Include="src\vmime\security\cert\gnutls\X509Certificate_GnuTLS.cpp" />
+    <ClCompile Include="src\vmime\security\cert\openssl\X509Certificate_OpenSSL.cpp" />
+    <ClCompile Include="src\vmime\security\cert\X509Certificate.cpp" />
+    <ClCompile Include="src\vmime\security\defaultAuthenticator.cpp" />
+    <ClCompile Include="src\vmime\security\digest\md5\md5MessageDigest.cpp" />
+    <ClCompile Include="src\vmime\security\digest\messageDigest.cpp" />
+    <ClCompile Include="src\vmime\security\digest\messageDigestFactory.cpp" />
+    <ClCompile Include="src\vmime\security\digest\sha1\sha1MessageDigest.cpp" />
+    <ClCompile Include="src\vmime\security\sasl\builtinSASLMechanism.cpp" />
+    <ClCompile Include="src\vmime\security\sasl\defaultSASLAuthenticator.cpp" />
+    <ClCompile Include="src\vmime\security\sasl\SASLContext.cpp" />
+    <ClCompile Include="src\vmime\security\sasl\SASLMechanismFactory.cpp" />
+    <ClCompile Include="src\vmime\security\sasl\SASLSession.cpp" />
+    <ClCompile Include="src\vmime\security\sasl\SASLSocket.cpp" />
+    <ClCompile Include="src\vmime\streamContentHandler.cpp" />
+    <ClCompile Include="src\vmime\stringContentHandler.cpp" />
+    <ClCompile Include="src\vmime\text.cpp" />
+    <ClCompile Include="src\vmime\textPartFactory.cpp" />
+    <ClCompile Include="src\vmime\utility\datetimeUtils.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\b64Encoder.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\binaryEncoder.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\eightBitEncoder.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\encoder.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\encoderFactory.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\noopEncoder.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\qpEncoder.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\sevenBitEncoder.cpp" />
+    <ClCompile Include="src\vmime\utility\encoder\uuEncoder.cpp" />
+    <ClCompile Include="src\vmime\utility\filteredStream.cpp" />
+    <ClCompile Include="src\vmime\utility\inputStream.cpp" />
+    <ClCompile Include="src\vmime\utility\inputStreamAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\inputStreamByteBufferAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\inputStreamPointerAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\inputStreamSocketAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\inputStreamStringAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\inputStreamStringProxyAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\outputStream.cpp" />
+    <ClCompile Include="src\vmime\utility\outputStreamAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\outputStreamByteArrayAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\outputStreamSocketAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\outputStreamStringAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\parserInputStreamAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\path.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="src\vmime\utility\progressListener.cpp" />
+    <ClCompile Include="src\vmime\utility\random.cpp" />
+    <ClCompile Include="src\vmime\utility\seekableInputStreamRegionAdapter.cpp" />
+    <ClCompile Include="src\vmime\utility\smartPtr.cpp" />
+    <ClCompile Include="src\vmime\utility\smartPtrInt.cpp" />
+    <ClCompile Include="src\vmime\utility\stream.cpp" />
+    <ClCompile Include="src\vmime\utility\streamUtils.cpp" />
+    <ClCompile Include="src\vmime\utility\stringProxy.cpp" />
+    <ClCompile Include="src\vmime\utility\stringUtils.cpp" />
+    <ClCompile Include="src\vmime\utility\sync\criticalSection.cpp" />
+    <ClCompile Include="src\vmime\utility\url.cpp" />
+    <ClCompile Include="src\vmime\utility\urlUtils.cpp" />
+    <ClCompile Include="src\vmime\word.cpp" />
+    <ClCompile Include="src\vmime\wordEncoder.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\gsasl\gsasl.h" />
+    <ClInclude Include="src\vmime\address.hpp" />
+    <ClInclude Include="src\vmime\addressList.hpp" />
+    <ClInclude Include="src\vmime\attachment.hpp" />
+    <ClInclude Include="src\vmime\attachmentHelper.hpp" />
+    <ClInclude Include="src\vmime\base.hpp" />
+    <ClInclude Include="src\vmime\body.hpp" />
+    <ClInclude Include="src\vmime\bodyPart.hpp" />
+    <ClInclude Include="src\vmime\bodyPartAttachment.hpp" />
+    <ClInclude Include="src\vmime\charset.hpp" />
+    <ClInclude Include="src\vmime\charsetConverter.hpp" />
+    <ClInclude Include="src\vmime\charsetConverterOptions.hpp" />
+    <ClInclude Include="src\vmime\charsetConverter_iconv.hpp" />
+    <ClInclude Include="src\vmime\charsetConverter_icu.hpp" />
+    <ClInclude Include="src\vmime\charsetConverter_idna.hpp" />
+    <ClInclude Include="src\vmime\charsetConverter_Win.hpp" />
+    <ClInclude Include="src\vmime\component.hpp" />
+    <ClInclude Include="src\vmime\config.hpp" />
+    <ClInclude Include="src\vmime\constants.hpp" />
+    <ClInclude Include="src\vmime\contentDisposition.hpp" />
+    <ClInclude Include="src\vmime\contentDispositionField.hpp" />
+    <ClInclude Include="src\vmime\contentHandler.hpp" />
+    <ClInclude Include="src\vmime\contentTypeField.hpp" />
+    <ClInclude Include="src\vmime\context.hpp" />
+    <ClInclude Include="src\vmime\dateTime.hpp" />
+    <ClInclude Include="src\vmime\defaultAttachment.hpp" />
+    <ClInclude Include="src\vmime\disposition.hpp" />
+    <ClInclude Include="src\vmime\emailAddress.hpp" />
+    <ClInclude Include="src\vmime\emptyContentHandler.hpp" />
+    <ClInclude Include="src\vmime\encoding.hpp" />
+    <ClInclude Include="src\vmime\exception.hpp" />
+    <ClInclude Include="src\vmime\fileAttachment.hpp" />
+    <ClInclude Include="src\vmime\fileContentHandler.hpp" />
+    <ClInclude Include="src\vmime\generatedMessageAttachment.hpp" />
+    <ClInclude Include="src\vmime\generationContext.hpp" />
+    <ClInclude Include="src\vmime\header.hpp" />
+    <ClInclude Include="src\vmime\headerField.hpp" />
+    <ClInclude Include="src\vmime\headerFieldFactory.hpp" />
+    <ClInclude Include="src\vmime\headerFieldValue.hpp" />
+    <ClInclude Include="src\vmime\htmlTextPart.hpp" />
+    <ClInclude Include="src\vmime\mailbox.hpp" />
+    <ClInclude Include="src\vmime\mailboxField.hpp" />
+    <ClInclude Include="src\vmime\mailboxGroup.hpp" />
+    <ClInclude Include="src\vmime\mailboxList.hpp" />
+    <ClInclude Include="src\vmime\mdn\MDNHelper.hpp" />
+    <ClInclude Include="src\vmime\mdn\MDNInfos.hpp" />
+    <ClInclude Include="src\vmime\mdn\receivedMDNInfos.hpp" />
+    <ClInclude Include="src\vmime\mdn\sendableMDNInfos.hpp" />
+    <ClInclude Include="src\vmime\mediaType.hpp" />
+    <ClInclude Include="src\vmime\message.hpp" />
+    <ClInclude Include="src\vmime\messageAttachment.hpp" />
+    <ClInclude Include="src\vmime\messageBuilder.hpp" />
+    <ClInclude Include="src\vmime\messageId.hpp" />
+    <ClInclude Include="src\vmime\messageIdSequence.hpp" />
+    <ClInclude Include="src\vmime\messageParser.hpp" />
+    <ClInclude Include="src\vmime\misc\importanceHelper.hpp" />
+    <ClInclude Include="src\vmime\net\connectionInfos.hpp" />
+    <ClInclude Include="src\vmime\net\defaultConnectionInfos.hpp" />
+    <ClInclude Include="src\vmime\net\events.hpp" />
+    <ClInclude Include="src\vmime\net\folder.hpp" />
+    <ClInclude Include="src\vmime\net\folderStatus.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPConnection.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPFolder.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPFolderStatus.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPMessage.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPMessagePart.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPMessagePartContentHandler.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPMessageStructure.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPParser.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPServiceInfos.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPSStore.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPStore.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPTag.hpp" />
+    <ClInclude Include="src\vmime\net\imap\IMAPUtils.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\format\courierMaildirFormat.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\format\kmailMaildirFormat.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirFolder.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirFolderStatus.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirFormat.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirMessage.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirMessagePart.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirMessageStructure.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirServiceInfos.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirStore.hpp" />
+    <ClInclude Include="src\vmime\net\maildir\maildirUtils.hpp" />
+    <ClInclude Include="src\vmime\net\message.hpp" />
+    <ClInclude Include="src\vmime\net\messageSet.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3Command.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3Connection.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3Folder.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3FolderStatus.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3Message.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3Response.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3ServiceInfos.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3SStore.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3Store.hpp" />
+    <ClInclude Include="src\vmime\net\pop3\POP3Utils.hpp" />
+    <ClInclude Include="src\vmime\net\securedConnectionInfos.hpp" />
+    <ClInclude Include="src\vmime\net\sendmail\sendmailServiceInfos.hpp" />
+    <ClInclude Include="src\vmime\net\sendmail\sendmailTransport.hpp" />
+    <ClInclude Include="src\vmime\net\service.hpp" />
+    <ClInclude Include="src\vmime\net\serviceFactory.hpp" />
+    <ClInclude Include="src\vmime\net\serviceInfos.hpp" />
+    <ClInclude Include="src\vmime\net\session.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPChunkingOutputStreamAdapter.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPCommand.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPCommandSet.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPConnection.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPExceptions.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPResponse.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPServiceInfos.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPSTransport.hpp" />
+    <ClInclude Include="src\vmime\net\smtp\SMTPTransport.hpp" />
+    <ClInclude Include="src\vmime\net\socket.hpp" />
+    <ClInclude Include="src\vmime\net\store.hpp" />
+    <ClInclude Include="src\vmime\net\timeoutHandler.hpp" />
+    <ClInclude Include="src\vmime\net\tls\gnutls\TLSProperties_GnuTLS.hpp" />
+    <ClInclude Include="src\vmime\net\tls\gnutls\TLSSession_GnuTLS.hpp" />
+    <ClInclude Include="src\vmime\net\tls\gnutls\TLSSocket_GnuTLS.hpp" />
+    <ClInclude Include="src\vmime\net\tls\openssl\OpenSSLInitializer.hpp" />
+    <ClInclude Include="src\vmime\net\tls\openssl\TLSProperties_OpenSSL.hpp" />
+    <ClInclude Include="src\vmime\net\tls\openssl\TLSSession_OpenSSL.hpp" />
+    <ClInclude Include="src\vmime\net\tls\openssl\TLSSocket_OpenSSL.hpp" />
+    <ClInclude Include="src\vmime\net\tls\TLSProperties.hpp" />
+    <ClInclude Include="src\vmime\net\tls\TLSSecuredConnectionInfos.hpp" />
+    <ClInclude Include="src\vmime\net\tls\TLSSession.hpp" />
+    <ClInclude Include="src\vmime\net\tls\TLSSocket.hpp" />
+    <ClInclude Include="src\vmime\net\transport.hpp" />
+    <ClInclude Include="src\vmime\object.hpp" />
+    <ClInclude Include="src\vmime\parameter.hpp" />
+    <ClInclude Include="src\vmime\parameterizedHeaderField.hpp" />
+    <ClInclude Include="src\vmime\parsedMessageAttachment.hpp" />
+    <ClInclude Include="src\vmime\parserHelpers.hpp" />
+    <ClInclude Include="src\vmime\parsingContext.hpp" />
+    <ClInclude Include="src\vmime\path.hpp" />
+    <ClInclude Include="src\vmime\plainTextPart.hpp" />
+    <ClInclude Include="src\vmime\platform.hpp" />
+    <ClInclude Include="src\vmime\platforms\windows\windowsCodepages.hpp" />
+    <ClInclude Include="src\vmime\platforms\windows\windowsCriticalSection.hpp" />
+    <ClInclude Include="src\vmime\platforms\windows\windowsFile.hpp" />
+    <ClInclude Include="src\vmime\platforms\windows\windowsHandler.hpp" />
+    <ClInclude Include="src\vmime\platforms\windows\windowsSocket.hpp" />
+    <ClInclude Include="src\vmime\propertySet.hpp" />
+    <ClInclude Include="src\vmime\relay.hpp" />
+    <ClInclude Include="src\vmime\security\authenticator.hpp" />
+    <ClInclude Include="src\vmime\security\cert\certificate.hpp" />
+    <ClInclude Include="src\vmime\security\cert\certificateChain.hpp" />
+    <ClInclude Include="src\vmime\security\cert\certificateVerifier.hpp" />
+    <ClInclude Include="src\vmime\security\cert\defaultCertificateVerifier.hpp" />
+    <ClInclude Include="src\vmime\security\cert\gnutls\X509Certificate_GnuTLS.hpp" />
+    <ClInclude Include="src\vmime\security\cert\openssl\X509Certificate_OpenSSL.hpp" />
+    <ClInclude Include="src\vmime\security\cert\X509Certificate.hpp" />
+    <ClInclude Include="src\vmime\security\defaultAuthenticator.hpp" />
+    <ClInclude Include="src\vmime\security\digest\md5\md5MessageDigest.hpp" />
+    <ClInclude Include="src\vmime\security\digest\messageDigest.hpp" />
+    <ClInclude Include="src\vmime\security\digest\messageDigestFactory.hpp" />
+    <ClInclude Include="src\vmime\security\digest\sha1\sha1MessageDigest.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\builtinSASLMechanism.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\defaultSASLAuthenticator.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\SASLAuthenticator.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\SASLContext.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\SASLMechanism.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\SASLMechanismFactory.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\SASLSession.hpp" />
+    <ClInclude Include="src\vmime\security\sasl\SASLSocket.hpp" />
+    <ClInclude Include="src\vmime\streamContentHandler.hpp" />
+    <ClInclude Include="src\vmime\stringContentHandler.hpp" />
+    <ClInclude Include="src\vmime\text.hpp" />
+    <ClInclude Include="src\vmime\textPart.hpp" />
+    <ClInclude Include="src\vmime\textPartFactory.hpp" />
+    <ClInclude Include="src\vmime\types.hpp" />
+    <ClInclude Include="src\vmime\utility\childProcess.hpp" />
+    <ClInclude Include="src\vmime\utility\datetimeUtils.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\b64Encoder.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\binaryEncoder.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\eightBitEncoder.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\encoder.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\encoderFactory.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\noopEncoder.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\qpEncoder.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\sevenBitEncoder.hpp" />
+    <ClInclude Include="src\vmime\utility\encoder\uuEncoder.hpp" />
+    <ClInclude Include="src\vmime\utility\file.hpp" />
+    <ClInclude Include="src\vmime\utility\filteredStream.hpp" />
+    <ClInclude Include="src\vmime\utility\inputStream.hpp" />
+    <ClInclude Include="src\vmime\utility\inputStreamAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\inputStreamByteBufferAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\inputStreamPointerAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\inputStreamSocketAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\inputStreamStringAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\inputStreamStringProxyAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\outputStream.hpp" />
+    <ClInclude Include="src\vmime\utility\outputStreamAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\outputStreamByteArrayAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\outputStreamSocketAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\outputStreamStringAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\parserInputStreamAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\path.hpp" />
+    <ClInclude Include="src\vmime\utility\progressListener.hpp" />
+    <ClInclude Include="src\vmime\utility\random.hpp" />
+    <ClInclude Include="src\vmime\utility\seekableInputStream.hpp" />
+    <ClInclude Include="src\vmime\utility\seekableInputStreamRegionAdapter.hpp" />
+    <ClInclude Include="src\vmime\utility\smartPtr.hpp" />
+    <ClInclude Include="src\vmime\utility\smartPtrInt.hpp" />
+    <ClInclude Include="src\vmime\utility\stream.hpp" />
+    <ClInclude Include="src\vmime\utility\streamUtils.hpp" />
+    <ClInclude Include="src\vmime\utility\stringProxy.hpp" />
+    <ClInclude Include="src\vmime\utility\stringUtils.hpp" />
+    <ClInclude Include="src\vmime\utility\sync\autoLock.hpp" />
+    <ClInclude Include="src\vmime\utility\sync\criticalSection.hpp" />
+    <ClInclude Include="src\vmime\utility\url.hpp" />
+    <ClInclude Include="src\vmime\utility\urlUtils.hpp" />
+    <ClInclude Include="src\vmime\vmime.hpp" />
+    <ClInclude Include="src\vmime\word.hpp" />
+    <ClInclude Include="src\vmime\wordEncoder.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\vmime\net\builtinServices.inl" />
+    <None Include="src\vmime\net\serviceRegistration.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
