@@ -163,7 +163,7 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 				for (; indexKnownServers < knownServers.size(); indexKnownServers++)
 					if (!strcmp(knownServers[indexKnownServers].addr, VPNGateServers[i].addr))
 						break;
-				if (indexKnownServers == knownServers.size())
+				if (indexKnownServers >= knownServers.size())
 					goto EndConnAttemptThread;
 
 				if (connectToVPNServer(knownServers[indexKnownServers]) == CONNECT_SERVER_SUCCESS)

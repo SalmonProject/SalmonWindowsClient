@@ -599,7 +599,8 @@ ConnectServerStatus connectToVPNServer(VPNInfo& theServer)
 	//failed OR unfinished can be treated as "server offline".
 	else
 	{
-		ReleaseMutex(storeHTTPSResult->okToDelete);
+		if(storeHTTPSResult)
+			ReleaseMutex(storeHTTPSResult->okToDelete);
 		return CONNECT_SERVER_OFFLINE;
 	}
 }
