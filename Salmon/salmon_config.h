@@ -24,6 +24,8 @@
 void wipeConfig();
 
 void purgeServer(char* purgeThisIP);
+void executeAllPurges(char* buf);
+
 bool getSConfig();
 
 //parameter is a RecvThreadStruct pointer

@@ -43,7 +43,7 @@ extern HWND bttnLogin;
 extern HWND wndwRegisterSocial;
 extern HWND textEnterPost;
 //extern HWND rdioFacebook;//NOTE doesn't need separate static text; gets a text label
-//extern HWND rdioRenren;//TODO BS_AUTORADIOBUTTON?
+//extern HWND rdioRenren;// BS_AUTORADIOBUTTON?
 extern HWND sttcSocNetID;
 extern HWND textSocNetID;//NOTE should be ES_NUMBER if renren
 extern HWND sttcSocEmailAddr;

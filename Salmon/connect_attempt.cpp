@@ -35,30 +35,7 @@ using std::vector;
 
 #include "connect_attempt.h"
 
-DWORD WINAPI measureCurRTT_Thread(LPVOID pCurServerIndex)
-{
-	int i = *((int*)pCurServerIndex);
-	free(pCurServerIndex);
-
-	FILE* writeCurAddr = openConfigFile("previousaddr.txt", "wt");
-	fwrite(gCurrentConnection.addr, 1, strlen(gCurrentConnection.addr), writeCurAddr);
-	fclose(writeCurAddr);
-
-	int theRTT = measureCurServerRTT();
-	WaitForSingleObject(gServerInfoMutex, INFINITE);
-	gCurrentConnection.rtt = knownServers[i].rtt = theRTT;
-	gCurrentConnection.score = knownServers[i].score = knownServers[i].bandwidth - knownServers[i].rtt;
-	ReleaseMutex(gServerInfoMutex);
-	writeSConfigFromKnownServers();
-	return 0;
-}
-
-//try to connect the servers
-//first, ping the server to make sure it is online (NO LONGER DOING THIS; CANT BE SURE PINGS GET THROUGH)
-//second, try to connect, check the accountlist after 3 seconds, if not connected then accountdisconnect && go back and ping the next one on line
-//		you might wanna update the RTT along with the process
-//if connected then return true
-//third, see if it reaches the end of the queue, if so, return false && ask dir_server for new server
+//try to connect to any server in the knownServers list
 ConnectAnyVPNAttemptResult tryConnectAnyServer()
 {
 	ConnectAnyVPNAttemptResult ret;
@@ -75,10 +52,6 @@ ConnectAnyVPNAttemptResult tryConnectAnyServer()
 TrySomeServers:
 	for (int ind = 0; ind< (nowTryingSkippedOnes ? tryLater.size() : knownServers.size()); ind++)
 	{
-		//First, just give up if the user cancelled the connection attempt.
-		if (cancelConnectionAttempt)
-			return ret;
-
 		int i = (nowTryingSkippedOnes ? tryLater[ind] : ind);
 		wchar_t connCountStr[40];
 		wchar_t connStatusWithCount[300];
@@ -87,8 +60,11 @@ TrySomeServers:
 		wcscat(connStatusWithCount, L" (");
 		wcscat(connStatusWithCount, connCountStr);
 		wcscat(connStatusWithCount, L")");
-
 		Static_SetText(sttcConnectStatus, connStatusWithCount);
+
+		//First, just give up if the user cancelled the connection attempt.
+		if (cancelConnectionAttempt)
+			return ret;
 
 		//alright, the "skip if failed to connect recently" logic used to be 1hr, but now that we can't ping to check if servers are up
 		//(meaning we have to try connecting to all of them, and it appears that even waiting for 3s sometimes isn't enough?), we really
@@ -104,23 +80,10 @@ TrySomeServers:
 			continue;
 		}
 
-		ConnectServerStatus conStatus = connectToVPNServer(knownServers[i].addr);
+		ConnectServerStatus conStatus = connectToVPNServer(knownServers[i]);
 
 		if (conStatus == CONNECT_SERVER_SUCCESS)
 		{
-			gVPNConnected = true;
-			strcpy(gCurrentConnection.addr, knownServers[i].addr);
-			gCurrentConnection.bandwidth = knownServers[i].bandwidth;
-			//rtt and score updated in thread
-			gCurrentConnection.failureCount = knownServers[i].failureCount = 0;
-			gCurrentConnection.lastAttempt = 0;
-			//measureCurServerRTT() takes ~60ms even for a ~0ms RTT, so let's not slow things down more than necessary here.
-			//we spin off a thread to take the measurement and save it to knownServers. since that new thread needs to know
-			//which knownServers item to modify, we let the thread do the sorting+writing that would have happened at the 
-			//end of this function (needToWriteSConfigHere = false). (the thread also writes to the previousaddr.txt file.)
-			int* passIt = (int*)malloc(sizeof(int));
-			*passIt = i;
-			CreateThread(NULL, 0, measureCurRTT_Thread, passIt, 0, NULL);
 			ret.connectedSuccessfully = true;
 			return ret;
 		}
@@ -165,53 +128,63 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 	//try all of our servers. if we can't connect to any of them...
 	ConnectAnyVPNAttemptResult res = tryConnectAnyServer();
 	if (cancelConnectionAttempt && !res.connectedSuccessfully)
-	{
-		cancelConnectionAttempt = false;
-		ReleaseMutex(gConnectionStateMutex);
-		return 0;
-	}
+		goto EndConnAttemptThread;
 	else if (!res.connectedSuccessfully)
 	{
 		//... then send the "needServer" message to the directory server, and wait for a response.
 		MessageBox(NULL, localizeConst(COULDNT_CONNECT_WILL_needServer), L"", MB_OK);
 
 		if (cancelConnectionAttempt)
-		{
-			cancelConnectionAttempt = false;
-			ReleaseMutex(gConnectionStateMutex);
-			return 0;
-		}
-		if (!needServer(res))
+			goto EndConnAttemptThread;
+
+		vector<VPNInfo> VPNGateServers; //if needServer gets VPNGate servers for us to process, this is how it tells us about them
+		NeedServerSuccess gotAnyServers = needServer(res, VPNGateServers);
+		if (gotAnyServers == NEED_SERVER_GOT_NONE)
 		{
 			MessageBox(NULL, localizeConst(SORRY_NO_SERVERS_AVAILABLE), localizeConst(ERROR_STR), MB_OK);
-			ShowWindow(wndwWaiting, SW_HIDE);
-			showConnectionStatus(false);
-
-			SetFocus(wndwMain);
-			ReleaseMutex(gConnectionStateMutex);
-			return 0;
+			goto EndConnAttemptThread;
 		}
-
-
-		
-
-		//Now try connecting again. The "last attempt" logic should mean that only the new server gets tried.
-		ConnectAnyVPNAttemptResult res2 = tryConnectAnyServer();
-		if (cancelConnectionAttempt && !res2.connectedSuccessfully)
+		else if (gotAnyServers == NEED_SERVER_GOT_SALMON)
 		{
-			cancelConnectionAttempt = false;
-			ReleaseMutex(gConnectionStateMutex);
-			return 0;
+			//Now try connecting again. The "last attempt" logic should mean that only the new server gets tried.
+			ConnectAnyVPNAttemptResult res2 = tryConnectAnyServer();
+			if (cancelConnectionAttempt && !res2.connectedSuccessfully)
+				goto EndConnAttemptThread;
+			else if (!res2.connectedSuccessfully)
+				MessageBox(NULL, localizeConst(SORRY_NO_SERVERS_AVAILABLE), localizeConst(ERROR_STR), MB_OK);
 		}
-		else if (!res2.connectedSuccessfully)
-			MessageBox(NULL, localizeConst(SORRY_NO_SERVERS_AVAILABLE), localizeConst(ERROR_STR), MB_OK);
+		else if(gotAnyServers == NEED_SERVER_GOT_VPNGATE)
+		{
+			//Try each of the received VPN Gate servers. If one works, it gets saved to knownServers+SConfig.
+			for (int i = 0; i < VPNGateServers.size(); i++)
+			{
+				addVPNInfo(VPNGateServers[i]);
+				int indexKnownServers = 0;
+				for (; indexKnownServers < knownServers.size(); indexKnownServers++)
+					if (!strcmp(knownServers[indexKnownServers].addr, VPNGateServers[i].addr))
+						break;
+				if (indexKnownServers == knownServers.size())
+					goto EndConnAttemptThread;
 
-		ShowWindow(wndwWaiting, SW_HIDE);
-		SetFocus(wndwMain);
+				if (connectToVPNServer(knownServers[indexKnownServers]) == CONNECT_SERVER_SUCCESS)
+				{
+					writeSConfigFromKnownServers();
+					break;
+				}
+				else
+					knownServers.erase(knownServers.begin() + indexKnownServers);
+
+				if (cancelConnectionAttempt)
+					goto EndConnAttemptThread;
+			}
+		}
 	}
-	if (gVPNConnected)
-		showConnectionStatus(true);
 
+EndConnAttemptThread:
+	cancelConnectionAttempt = false;
+	showConnectionStatus(gVPNConnected);
+	ShowWindow(wndwWaiting, SW_HIDE);
+	SetFocus(wndwMain);
 	ReleaseMutex(gConnectionStateMutex);
 	return 0;
 }

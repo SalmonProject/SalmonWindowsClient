@@ -252,7 +252,7 @@ bttnWipeConfig = CreateWindow(
 const int sttcVersionY = bttnWipeConfigY + 54;
 sttcVersion = CreateWindow(
 	L"STATIC",   // predefined class
-	L"Version: v1.0.0",       // text
+	L"Version: v1.0.1",       // text
 	WS_CHILD | SS_CENTER,  // styles
 	9,         // starting x position
 	sttcVersionY,         // starting y position
@@ -440,7 +440,7 @@ void winProcMain(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			disableAllButtonsMain();
 			UpdateWindow(wndwMain);
 
-			mainRecvStruct = new RecvThreadStruct(DEFAULT_MAX_EMAIL_REPLY_SIZE, ourRandStr, getRecMailCallback);
+			mainRecvStruct = new RecvThreadStruct(ourRandStr, getRecMailCallback);
 			CreateThread(NULL, 0, recvThread, mainRecvStruct, 0, NULL);
 		}
 		else if ((HWND)lParam == bttnRedeemCode)
@@ -467,7 +467,7 @@ void winProcMain(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			disableAllButtonsMain();
 			UpdateWindow(wndwMain);
 
-			mainRecvStruct = new RecvThreadStruct(DEFAULT_MAX_EMAIL_REPLY_SIZE, ourRandStr, redeemCodeMailCallback);
+			mainRecvStruct = new RecvThreadStruct(ourRandStr, redeemCodeMailCallback);
 			CreateThread(NULL, 0, recvThread, mainRecvStruct, 0, NULL);
 		}
 		else if ((HWND)lParam == bttnAndroidGetter)

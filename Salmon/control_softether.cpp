@@ -301,6 +301,27 @@ int measureCurServerRTT()
 
 	return rttValue;
 }
+DWORD WINAPI measureCurRTT_Thread(LPVOID dummyArg)
+{
+	int theI = 0;
+	for (theI = 0; theI < knownServers.size(); theI++)
+		if (!strcmp(gCurrentConnection.addr, knownServers[theI].addr))
+			break;
+	if (theI == knownServers.size())
+		return 0;
+
+	FILE* writeCurAddr = openConfigFile("previousaddr.txt", "wt");
+	fwrite(gCurrentConnection.addr, 1, strlen(gCurrentConnection.addr), writeCurAddr);
+	fclose(writeCurAddr);
+
+	int theRTT = measureCurServerRTT();
+	WaitForSingleObject(gServerInfoMutex, INFINITE);
+	gCurrentConnection.rtt = knownServers[theI].rtt = theRTT;
+	gCurrentConnection.score = knownServers[theI].score = knownServers[theI].bandwidth - knownServers[theI].rtt;
+	ReleaseMutex(gServerInfoMutex);
+	writeSConfigFromKnownServers();
+	return 0;
+}
 
 extern "C" size_t popenOneShotR(const char* cmdToExec, char* buf, size_t bufSize);
 
@@ -319,9 +340,6 @@ char* accountGet(char* conSetting)
 void createConnectionSetting(char* serverIP_Addr)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
-	//first of all, make sure the connection setting we're trying to work on isn't trying to connect (they can exist when this function is called, after all)
-	sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdisconnect %s", g_vpncmdPath, serverIP_Addr);
-	systemNice(toExec);
 
 	char certPath[300];
 	strcpy(certPath, getenv("APPDATA"));
@@ -407,9 +425,6 @@ void createConnectionSetting(char* serverIP_Addr)
 void createVPNGateConnectionSetting(VPNInfo theServerInfo)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
-	//first of all, make sure the connection setting we're trying to work on isn't trying to connect (they can exist when this function is called, after all)
-	sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdisconnect %s", g_vpncmdPath, theServerInfo.addr);
-	systemNice(toExec);
 
 	char certPath[300];
 	strcpy(certPath, getenv("APPDATA"));
@@ -512,12 +527,12 @@ DWORD WINAPI httpsCheckerThread(LPVOID lpParam)
 //attempt to connect to a VPN server; there should already be a 'connection setting' set up inside softether.
 //return value:	CONNECT_SERVER_SUCCESS obvious, CONNECT_SERVER_OFFLINE connection attempt and https get failed, 
 //				CONNECT_SERVER_CLIENT_ERROR we determined our connection setting wasn't correct, CONNECT_SERVER_ERROR https get succeeded, connect failed
-ConnectServerStatus connectToVPNServer(char* serverIP_Addr)
+ConnectServerStatus connectToVPNServer(VPNInfo& theServer)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
 
 	//the connection setting "ipaddr" should be pre-loaded with that ipaddr's cert, and the correct username and password
-	sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountconnect %s", g_vpncmdPath, serverIP_Addr);
+	sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountconnect %s", g_vpncmdPath, theServer.addr);
 	char bufAccConn[4096];
 	popenOneShotR(toExec, bufAccConn, 4096);
 	
@@ -525,40 +540,58 @@ ConnectServerStatus connectToVPNServer(char* serverIP_Addr)
 	//unfortunately, i don't think it's possible to doublecheck the username or actual target ip address; not printed from this command.
 	if (strstr(bufAccConn, "VPN Connection Setting does not exist.") || strstr(bufAccConn, "Error code: 36"))
 	{
-		sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdisconnect %s", g_vpncmdPath, serverIP_Addr);
+		sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdisconnect %s", g_vpncmdPath, theServer.addr);
 		systemNice(toExec);
 		Sleep(10);
 		return CONNECT_SERVER_CLIENT_ERROR;
 	}
 
-	//while softether is trying to establish the connection, also make our own TLS connection, and test if a server
-	//1) is there, 2) has the cert we expect, 3) responds with a 404 to an HTTP GET like softether does.
-	//(as a thread since this is a piece of logic that becomes important if the softether connection failed... in which
-	// case we've ALREADY waited 8 seconds.)
-	HTTPSArgPasser* storeHTTPSResult = new HTTPSArgPasser(serverIP_Addr);
-	CreateThread(NULL, 0, httpsCheckerThread, storeHTTPSResult, 0, NULL);
+	//all of this HTTPS checking is for Salmon block checking purposes, so don't bother for VPN Gate servers.
+	HTTPSArgPasser* storeHTTPSResult = 0;
+	if (!theServer.vpnGate)
+	{
+		//while softether is trying to establish the connection, also make our own TLS connection, and test if a server
+		//1) is there, 2) has the cert we expect, 3) responds with a 404 to an HTTP GET like softether does.
+		//(as a thread since this is a piece of logic that becomes important if the softether connection failed... in which
+		// case we've ALREADY waited 8 seconds.)
+		storeHTTPSResult = new HTTPSArgPasser(theServer.addr);
+		CreateThread(NULL, 0, httpsCheckerThread, storeHTTPSResult, 0, NULL);
+	}
 
 	//sometimes if it's the first connection to the server in a while, we're reporting it as failed even though it succeeded.
 	//i'm assuming that vpncmd returns, having set the stuff in motion, but without guaranteeing that the connection is set up.
 	//it's probably necessary to have a decent Sleep() here, since i'm currently testing on a local network with tiny RTT.
 	//hopefully 8s is enough here... i don't want to add huge delays to failed connections for no reason.
-	for (int connChecks = 0; storeHTTPSResult->theResult != HTTPSResult_Failed && connChecks < 80; connChecks++)
+	for (int connChecks = 0; (storeHTTPSResult == 0 || storeHTTPSResult->theResult != HTTPSResult_Failed) && connChecks < 80; connChecks++)
 	{
 		Sleep(100);
 		if (checkConnection())
 		{
-			ReleaseMutex(storeHTTPSResult->okToDelete);
+			if (storeHTTPSResult)
+				ReleaseMutex(storeHTTPSResult->okToDelete);
+			gVPNConnected = true;
+			strcpy(gCurrentConnection.addr, theServer.addr);
+			gCurrentConnection.bandwidth = theServer.bandwidth;
+			//rtt and score updated in thread
+			gCurrentConnection.failureCount = theServer.failureCount = 0;
+			gCurrentConnection.lastAttempt = 0;
+
+			//measureCurServerRTT() takes ~60ms even for a ~0ms RTT, so let's not slow things down more than necessary here.
+			//we spin off a thread to take the measurement and save it to knownServers. since that new thread needs to know
+			//which knownServers item to modify, we let the thread do the sorting+writing that would have happened at the 
+			//end of this function (needToWriteSConfigHere = false). (the thread also writes to the previousaddr.txt file.)
+			CreateThread(NULL, 0, measureCurRTT_Thread, 0, 0, NULL);
 			return CONNECT_SERVER_SUCCESS;
 		}
 	}
 	//if you get past this loop, the connection has failed.
 
 	//we'll probably be trying other connection settings, so don't let this ongoing attempt get in the way.
-	sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdisconnect %s", g_vpncmdPath, serverIP_Addr);
+	sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdisconnect %s", g_vpncmdPath, theServer.addr);
 	systemNice(toExec);
 	Sleep(10);
 
-	if (storeHTTPSResult->theResult == HTTPSResult_Succeeded)
+	if (storeHTTPSResult && storeHTTPSResult->theResult == HTTPSResult_Succeeded)
 	{
 		ReleaseMutex(storeHTTPSResult->okToDelete);
 		return CONNECT_SERVER_ERROR;

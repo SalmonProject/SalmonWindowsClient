@@ -224,8 +224,6 @@ void disableAllButtonsLogin()
 	Button_Enable(bttnLogin, FALSE);
 }
 
-//NOTE this is length in CHARACTERS, not bytes
-#define MAX_LOGIN_RESPONSE_MSG_LENGTH 16384
 RecvThreadStruct* loginRecvStruct;
 
 void loginMailCallback(RecvMailCodes successful)
@@ -468,7 +466,7 @@ void winProcLogin(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				return;
 			}
 
-			loginRecvStruct = new RecvThreadStruct(MAX_LOGIN_RESPONSE_MSG_LENGTH, ourRandStr, loginMailCallback);
+			loginRecvStruct = new RecvThreadStruct(ourRandStr, loginMailCallback);
 			CreateThread(NULL, 0, recvThread, loginRecvStruct, 0, NULL);
 		}
 	}

@@ -18,6 +18,8 @@
 #ifndef _SALMON_INCL_GUARD_VPNINFO_H_
 #define _SALMON_INCL_GUARD_VPNINFO_H_
 
+#include <vector>
+
 class VPNInfo
 {
 public:
@@ -32,37 +34,22 @@ public:
 	bool vpnGate;
 	unsigned short int port;
 
-	VPNInfo(const char* theAddr, int theBW, int theRTT, int theScore, int theFC, const char* thePSK)
-	{
-		if (strstr(theAddr, "VPNGATE"))
-		{
-			strncpy(addr, theAddr+strlen("VPNGATE"), 60); addr[59] = 0;
-			vpnGate = true;
-		}
-		else
-		{
-			strncpy(addr, theAddr, 60); addr[59] = 0;
-			vpnGate = false;
-		}
-
-		if (strchr(addr, ':'))
-		{
-			port = (unsigned short int)atoi(strchr(addr, ':') + 1);
-			*strchr(addr, ':') = 0;
-		}
-		else
-			port = 443;
-		
-		bandwidth = theBW;
-		rtt = theRTT;
-		score = theScore;
-		failureCount = theFC;
-		strncpy(psk, thePSK, 10); psk[9] = 0;
-	}
+	VPNInfo(const char* theAddr, int theBW, int theRTT, int theScore, int theFC, const char* thePSK);
 
 private:
 	
 	VPNInfo() {}
 };
+
+//populate a VPNInfo struct with a new server's info, and add it to the knownServers list
+//returns true if this IP address was already in knownServers
+bool addVPNInfo(char* ipAddrBuf, int serverBW, char* serverPSK);
+//same as above, but bring-your-own-VPNInfo
+//returns true if this IP address was already in knownServers
+bool addVPNInfo(VPNInfo toAdd);
+
+bool parseNewSalmonServer(char* recvBuffer);
+bool parseVPNGateItem(char* curVPNgate, std::vector<VPNInfo>& VPNGateServers);
+
 
 #endif //_SALMON_INCL_GUARD_VPNINFO_H_

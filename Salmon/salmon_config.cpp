@@ -121,19 +121,32 @@ void wipeConfig()
 	unlinkConfigFile("locale.txt");
 	unlinkConfigFile("previousaddr.txt");
 
-	char wholeThing[300];
-	char certName[100];
 
-	for (int i = 0; i < knownServers.size(); i++)
+
+	//ah... now with the VPN Gate fallback, there can be .pem files that we don't remember writing.
+	//so, instead of going by knownServers, we have to actually search the directory.
+	WCHAR WwholeThing[300];
+	char wholeThing[300];
+
+	strcpy(wholeThing, getenv("APPDATA"));
+	strcat(wholeThing, "\\salmon\\*.pem");
+	mbstowcs(WwholeThing, wholeThing, 300);
+
+	WIN32_FIND_DATA ffd;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	hFind = FindFirstFile(WwholeThing, &ffd);
+
+	char tempASCII[MAX_PATH];
+	char toUnlink[350];
+	do
 	{
-		
-		strcpy(certName, knownServers[i].addr);
-		strcat(certName, ".pem");
-		strcpy(wholeThing, getenv("APPDATA"));
-		strcat(wholeThing, "\\salmon\\");
-		strcat(wholeThing, certName);
-		unlink(wholeThing);
-	}
+		wcstombs(tempASCII, ffd.cFileName, MAX_PATH);
+		strcpy(toUnlink, getenv("APPDATA"));
+		strcat(toUnlink, "\\salmon\\");
+		strcat(toUnlink, tempASCII);
+		unlink(toUnlink);
+	} while (FindNextFile(hFind, &ffd) != 0);
+
 
 	//RemoveDirectory will fail if the directory isn't empty... which is correct behavior:
 	//if the user put some alien files in there, we should leave them (and therefore the directory) alone.
@@ -482,6 +495,29 @@ void purgeServer(char* purgeThisIP)
 
 	fclose(theFile);
 	free(wholeFileBuf);
+}
+
+void executeAllPurges(char* buf)
+{
+	//We are interested in any "purge this ip addr" lines.
+	char* purgeLine = strstr(buf, "PURGE");
+	while (purgeLine)
+	{
+		char* purgeEnd = strchr(purgeLine, '\n');
+		if (!purgeEnd)
+			break;//malformed
+
+		//no strndup in visual studio...
+		char* purgeThis = (char*)malloc(1 + purgeEnd - purgeLine);
+		memcpy(purgeThis, purgeLine, purgeEnd - purgeLine);
+		purgeThis[purgeEnd - purgeLine] = 0;
+
+		purgeServer(purgeThis);
+
+		free(purgeThis);
+
+		purgeLine = strstr(purgeLine + 1, "PURGE");
+	}
 }
 
 void loadEmailIfStored()

@@ -92,6 +92,9 @@
     <ClCompile Include="pipefile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VPNInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">

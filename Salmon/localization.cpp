@@ -151,19 +151,20 @@ L"你的账号已经被永久封禁。如果你并没有帮助政府破坏我们
 		L"邀请成功!",
 		L"عملیات توصیه موفق آمیز بوده است."
 	},
-	//$18
+	//$18 TODO TODO translations are out of date
 	{
 L"Salmon has run out of new servers at your trust level! We are unable to give \
-you a new server until we get more volunteers. If you have friends in uncensored \
-countries, please encourage them to volunteer - https://salmon.cs.illinois.edu. \
-Note that your currently assigned Salmon servers might just be temporarily offline, not blocked. \
-so try connecting again later.\n\n\
-Now trying to fall back to a VPN Gate server. Once this connection attempt has failed, try connecting again.",
+you a new server until we get more volunteers. Now trying to fall back to a VPN Gate server. \
+Even if there is a VPN Gate server available, please encourage your friends who live in uncensored \
+countries to run Salmon servers: \
+Salmon servers are much less vulnerable to being blocked than VPN Gate servers.\n\
+(https://salmon.cs.illinois.edu/)\n\n\
+Note that your currently assigned Salmon servers might just be temporarily offline, not blocked.",
 L"Salmon没有足够的与你的信任等级相对应的服务器!我们现在无法给你分配一个新的服务器，直到我们获得更多服务器。如果你有朋友身处不进行网络审查的国家，请鼓励他做志愿者提供服务器。一些已经分配给你的服务器可能暂时下线，请稍后再试。\n\n\
-Now trying to fall back to a VPN Gate server. Once this connection attempt has failed, try connecting again.",
+Now trying to fall back to a VPN Gate server.",
 L"برنامه ماهی آزاد دیگر سروری برای درجه اعتماد شما ندارد! متاسفانه ما تا زمانی که داوطلبان بیشتری نداشته باشیم نمی توانیم سرور جدیدی به شما بدهیم. اگر دوستی در کشورهای سانسورنشده دارید، لطفاً آنها را تشویق کنید که داوطلب بشوند - https://salmon.cs.illinois.edu \n\
 همچنین احتمال دارد بعضی از سرورهای به کار گرفته شده برای شما ممکن است آفلاین باشند.لطفاً بعداً دوباره امتحان نمایید    \n\n\
-Now trying to fall back to a VPN Gate server. Once this connection attempt has failed, try connecting again."
+Now trying to fall back to a VPN Gate server."
 	},
 	//$19
 	{

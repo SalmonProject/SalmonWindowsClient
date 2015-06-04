@@ -267,7 +267,7 @@ void winProcRecd(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			fclose(writeEmailSetting);
 		}
 
-		regRecRecvStruct = new RecvThreadStruct(DEFAULT_MAX_EMAIL_REPLY_SIZE, ourRandStr, recRegMailCallback);
+		regRecRecvStruct = new RecvThreadStruct(ourRandStr, recRegMailCallback);
 		CreateThread(NULL, 0, recvThread, regRecRecvStruct, 0, NULL);
 	}
 }

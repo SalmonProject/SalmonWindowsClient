@@ -231,7 +231,7 @@ void finishRegMailCallback(RecvMailCodes successful)
 		if (!strchr(regSocRecvStruct->buffer, '$'))
 		{
 			//the buffer will only have the password, but since we've gotten here we know it's a success. i've set dirsrvmsg $7 to be something you can print here.
-			localizeMsgBox("$7", L""); //TODO TODO eh, don't have a nice plain "Successful!" translated, so no title for now.
+			localizeMsgBox("$7", L"");
 
 			ShowWindow(wndwRegisterSocial, SW_HIDE);
 			ShowWindow(wndwMain, SW_SHOW);
@@ -264,7 +264,7 @@ void finishRegMailCallback(RecvMailCodes successful)
 			}
 
 			delete regSocRecvStruct;
-			regSocRecvStruct = new RecvThreadStruct(DEFAULT_MAX_EMAIL_REPLY_SIZE, ourRandStr, finishRegMailCallback);
+			regSocRecvStruct = new RecvThreadStruct(ourRandStr, finishRegMailCallback);
 			CreateThread(NULL, 0, recvThread, regSocRecvStruct, 0, NULL);
 			return;
 		}
@@ -317,7 +317,7 @@ void startRegMailCallback(RecvMailCodes successful)
 		}
 
 		delete regSocRecvStruct;
-		regSocRecvStruct = new RecvThreadStruct(DEFAULT_MAX_EMAIL_REPLY_SIZE, ourRandStr, finishRegMailCallback);
+		regSocRecvStruct = new RecvThreadStruct(ourRandStr, finishRegMailCallback);
 		CreateThread(NULL, 0, recvThread, regSocRecvStruct, 0, NULL);
 	}
 	else if (successful == RECV_MAIL_FAIL)
@@ -413,7 +413,7 @@ void winProcSocial(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return;
 		}
 
-		regSocRecvStruct = new RecvThreadStruct(DEFAULT_MAX_EMAIL_REPLY_SIZE, ourRandStr, startRegMailCallback);
+		regSocRecvStruct = new RecvThreadStruct(ourRandStr, startRegMailCallback);
 		CreateThread(NULL, 0, recvThread, regSocRecvStruct, 0, NULL);
 	}
 }

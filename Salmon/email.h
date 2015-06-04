@@ -18,6 +18,8 @@
 #ifndef _SALMON_EMAIL_INCLGUARD_H_
 #define _SALMON_EMAIL_INCLGUARD_H_
 
+#include <vector>
+
 #include "salmon_constants.h"
 #include "connect_attempt.h"
 
@@ -40,25 +42,31 @@ class RecvThreadStruct
 public:
 	char* randomString;
 	char* buffer;
-	int bufferSize;
 	int charsRecvd;
 	void(*callback)(RecvMailCodes);
 
-	RecvThreadStruct(unsigned int bufSize, char* rStr, void(*theCB)(RecvMailCodes))
+	RecvThreadStruct(char* rStr, void(*theCB)(RecvMailCodes))
 	{
-		buffer = new char[bufSize];
-		bufferSize = bufSize;
-		randomString = new char[51];
-
+		buffer = 0;
 		charsRecvd = 0;
 		callback = theCB;
-		strcpy(randomString, rStr);
+		randomString = strdup(rStr);
 	}
 	~RecvThreadStruct()
 	{
-		delete buffer;
-		delete randomString;
+		free(buffer);
+		free(randomString);
 	}
+	void receiveData(const char* data, int length)
+	{
+		buffer = (char*)malloc(length + 1);
+		memcpy(buffer, data, length);
+		buffer[length] = 0;
+		charsRecvd = length;
+	}
+
+private:
+	RecvThreadStruct(){}
 };
 
 
@@ -71,6 +79,12 @@ extern HANDLE recvThreadMutex;
 //parameter is a RecvThreadStruct pointer
 DWORD WINAPI recvThread(LPVOID lpParam);
 
-bool needServer(ConnectAnyVPNAttemptResult res);
+enum NeedServerSuccess
+{
+	NEED_SERVER_GOT_NONE = 0,
+	NEED_SERVER_GOT_SALMON = 1,
+	NEED_SERVER_GOT_VPNGATE = 2
+};
+NeedServerSuccess needServer(ConnectAnyVPNAttemptResult res, std::vector<VPNInfo>& VPNGateServers);
 
 #endif 

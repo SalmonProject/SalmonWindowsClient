@@ -29,7 +29,7 @@ void createVPNGateConnectionSetting(VPNInfo theServerInfo);
 void deleteConnectionSettings();
 enum ConnectServerStatus { CONNECT_SERVER_SUCCESS, CONNECT_SERVER_OFFLINE,
 							CONNECT_SERVER_CLIENT_ERROR, CONNECT_SERVER_ERROR};
-ConnectServerStatus connectToVPNServer(char* serverIP_Addr);
+ConnectServerStatus connectToVPNServer(VPNInfo& theServer);
 bool checkConnection();
 int measureCurServerRTT();
 
