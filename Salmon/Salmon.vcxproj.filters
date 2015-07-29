@@ -158,6 +158,9 @@
     <ClInclude Include="pipefile.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

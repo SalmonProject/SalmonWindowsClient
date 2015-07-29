@@ -34,6 +34,8 @@
 #include "VPNInfo.h"
 #include "email.h"
 
+#include "version.h"
+
 #define HIDDEN_MAIN_WINDOW_HEIGHT 150
 #define FULL_MAIN_WINDOW_HEIGHT 552
 
@@ -252,7 +254,7 @@ bttnWipeConfig = CreateWindow(
 const int sttcVersionY = bttnWipeConfigY + 54;
 sttcVersion = CreateWindow(
 	L"STATIC",   // predefined class
-	L"Version: v1.0.1",       // text
+	SALMON_CLIENT_VERSION_STRING,       // text
 	WS_CHILD | SS_CENTER,  // styles
 	9,         // starting x position
 	sttcVersionY,         // starting y position
