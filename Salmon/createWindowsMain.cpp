@@ -66,9 +66,9 @@ sttcConnectStatus=CreateWindow(
 	L"STATIC",   // predefined class
 	gVPNConnected ? localizeConst(VPN_STATUS_CONNECTED) : localizeConst(VPN_STATUS_DISCONNECTED),
 	WS_VISIBLE | WS_CHILD | SS_CENTER,  // styles
-	9,         // starting x position
+	3,         // starting x position
 	sttcConnectStatusY,         // starting y position
-	196,        // width
+	215,        // width
 	16,        // height
 	wndwMain,       // parent window
 	NULL,       // No menu

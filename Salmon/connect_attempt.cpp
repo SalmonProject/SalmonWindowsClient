@@ -35,6 +35,18 @@ using std::vector;
 
 #include "connect_attempt.h"
 
+void showServersLeft(int numLeft)
+{
+	wchar_t connCountStr[40];
+	wchar_t connStatusWithCount[300];
+	_itow(numLeft, connCountStr, 10);
+	wcscpy(connStatusWithCount, localizeConst(VPN_STATUS_CONNECTING));
+	wcscat(connStatusWithCount, L" (");
+	wcscat(connStatusWithCount, connCountStr);
+	wcscat(connStatusWithCount, L" servers left)");
+	Static_SetText(sttcConnectStatus, connStatusWithCount);
+}
+
 //try to connect to any server in the knownServers list
 ConnectAnyVPNAttemptResult tryConnectAnyServer()
 {
@@ -53,14 +65,8 @@ TrySomeServers:
 	for (int ind = 0; ind< (nowTryingSkippedOnes ? tryLater.size() : knownServers.size()); ind++)
 	{
 		int i = (nowTryingSkippedOnes ? tryLater[ind] : ind);
-		wchar_t connCountStr[40];
-		wchar_t connStatusWithCount[300];
-		_itow(nowTryingSkippedOnes ? tryLater.size() - ind : (knownServers.size() - i) + tryLater.size(), connCountStr, 10);
-		wcscpy(connStatusWithCount, localizeConst(VPN_STATUS_CONNECTING));
-		wcscat(connStatusWithCount, L" (");
-		wcscat(connStatusWithCount, connCountStr);
-		wcscat(connStatusWithCount, L")");
-		Static_SetText(sttcConnectStatus, connStatusWithCount);
+
+		showServersLeft(nowTryingSkippedOnes ? tryLater.size() - ind : (knownServers.size() - i) + tryLater.size());
 
 		//First, just give up if the user cancelled the connection attempt.
 		if (cancelConnectionAttempt)
@@ -158,6 +164,7 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 			//Try each of the received VPN Gate servers. If one works, it gets saved to knownServers+SConfig.
 			for (int i = 0; i < VPNGateServers.size(); i++)
 			{
+				showServersLeft(VPNGateServers.size() - i);
 				addVPNInfo(VPNGateServers[i]);
 				int indexKnownServers = 0;
 				for (; indexKnownServers < knownServers.size(); indexKnownServers++)
