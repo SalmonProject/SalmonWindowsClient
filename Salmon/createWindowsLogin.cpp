@@ -149,7 +149,7 @@ sttcLoginEmailPW = CreateWindow(
 	WS_VISIBLE | WS_CHILD,  // styles
 	20,         // starting x position
 	sttcLoginEmailPWY,         // starting y position
-	130,        // width
+	200,        // width
 	16,        // height
 	wndwLogin,       // parent window
 	NULL,       // No menu
