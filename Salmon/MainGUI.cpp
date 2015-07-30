@@ -154,8 +154,6 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 		startTrustCountdown();
 	}
 
-	//MessageBoxA(NULL, SSLeay_version(SSLEAY_VERSION), "ssl version", MB_OK);
-
 	MSG messages;
 	while (GetMessage(&messages, NULL, 0, 0) > 0)
 	{

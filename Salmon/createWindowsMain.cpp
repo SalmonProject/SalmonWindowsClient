@@ -37,10 +37,26 @@
 #include "version.h"
 
 #define HIDDEN_MAIN_WINDOW_HEIGHT 150
-#define FULL_MAIN_WINDOW_HEIGHT 552
+#define FULL_MAIN_WINDOW_HEIGHT 568
 
 bool sendMobileconfigs();
 void writeMobileconfigToFile(WCHAR* fname, WCHAR* ipAddr, WCHAR* psk, WCHAR* vpnName, WCHAR* vpnPW);
+
+//for ssl version:
+#include "../libvmime/src/openssl/crypto.h"
+std::wstring getSalmonClientAndOpenSSLVersions()
+{
+	const WCHAR* salmonVer = SALMON_CLIENT_VERSION_STRING;
+	const char* aSSLV = SSLeay_version(SSLEAY_VERSION);
+	WCHAR* wSSLV = new WCHAR[strlen(aSSLV) + 1];
+	mbstowcs(wSSLV, aSSLV, strlen(aSSLV));
+	std::wstring wholeVerString(salmonVer);
+	wholeVerString += L"\n";
+	wholeVerString += wSSLV;
+	delete wSSLV;
+	return wholeVerString;
+}
+
 
 void createWindowsMain(LPCWSTR className, HINSTANCE thisInstance)
 {
@@ -251,15 +267,16 @@ bttnWipeConfig = CreateWindow(
 	(HINSTANCE) GetWindowLong(wndwMain, GWL_HINSTANCE),
 	NULL);      // pointer not needed
 
+std::wstring displayVersionString = getSalmonClientAndOpenSSLVersions();
 const int sttcVersionY = bttnWipeConfigY + 54;
 sttcVersion = CreateWindow(
 	L"STATIC",   // predefined class
-	SALMON_CLIENT_VERSION_STRING,       // text
+	displayVersionString.c_str(),       // text
 	WS_CHILD | SS_CENTER,  // styles
 	9,         // starting x position
 	sttcVersionY,         // starting y position
 	196,        // width
-	16,        // height
+	32,        // height
 	wndwMain,       // parent window
 	NULL,       // No menu
 	(HINSTANCE)GetWindowLong(wndwMain, GWL_HINSTANCE),
