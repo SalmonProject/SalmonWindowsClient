@@ -158,11 +158,24 @@ sttcSocEmailPW=CreateWindow(
 	WS_VISIBLE | WS_CHILD,  // styles
 	10,         // starting x position
 	sttcSocEmailPWY,         // starting y position
-	220,        // width
+	180,        // width
 	16,        // height
 	wndwRegisterSocial,       // parent window
 	NULL,       // No menu
 	(HINSTANCE) GetWindowLong(wndwRegisterSocial, GWL_HINSTANCE),
+	NULL);      // pointer not needed
+
+bttnIsntThisUnsafeSocReg = CreateWindow(
+	L"BUTTON",   // predefined class
+	localizeConst(ISNT_THIS_UNSAFE_BUTTON),// text
+	WS_VISIBLE | WS_CHILD,  // styles
+	186,         // starting x position
+	sttcSocEmailPWY-2,         // starting y position
+	110,        // width
+	21,        // height
+	wndwRegisterSocial,       // parent window
+	NULL,       // No menu
+	(HINSTANCE)GetWindowLong(wndwRegisterSocial, GWL_HINSTANCE),
 	NULL);      // pointer not needed
 
 const int textSocEmailPWY = sttcSocEmailPWY + 22;
@@ -202,6 +215,7 @@ SendMessage(textSocNetID, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(sttcSocEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(textSocEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(sttcSocEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
+SendMessage(bttnIsntThisUnsafeSocReg, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(textSocEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(bttnSocRegSubmit, WM_SETFONT, (WPARAM)gFontHandle, 0);
 
@@ -231,7 +245,7 @@ void finishRegMailCallback(RecvMailCodes successful)
 		if (!strchr(regSocRecvStruct->buffer, '$'))
 		{
 			//the buffer will only have the password, but since we've gotten here we know it's a success. i've set dirsrvmsg $7 to be something you can print here.
-			localizeMsgBox("$7", L"");
+			localizeDirServMsgBox("$7", L"");
 
 			ShowWindow(wndwRegisterSocial, SW_HIDE);
 			ShowWindow(wndwMain, SW_SHOW);
@@ -245,7 +259,7 @@ void finishRegMailCallback(RecvMailCodes successful)
 		//if the failure was just because "we didn't see your post", give the user a second chance, rather than restarting the process.
 		else if (!strncmp(regSocRecvStruct->buffer, "$8", 2))
 		{
-			localizeMsgBox(regSocRecvStruct->buffer, localizeConst(ERROR_STR));
+			localizeDirServMsgBox(regSocRecvStruct->buffer, localizeConst(ERROR_STR));
 
 			int havePosted = IDNO;
 			while (havePosted == IDNO)
@@ -269,7 +283,7 @@ void finishRegMailCallback(RecvMailCodes successful)
 			return;
 		}
 		else
-			localizeMsgBox(regSocRecvStruct->buffer, localizeConst(ERROR_STR));
+			localizeDirServMsgBox(regSocRecvStruct->buffer, localizeConst(ERROR_STR));
 
 		enableAllButtonsSocReg();
 		delete regSocRecvStruct;
@@ -291,7 +305,7 @@ void startRegMailCallback(RecvMailCodes successful)
 		ShowWindow(wndwWaiting, SW_HIDE);
 		SetFocus(wndwRegisterSocial);
 
-		localizeMsgBox(regSocRecvStruct->buffer, localizeConst(DIR_SERVER_SAYS));
+		localizeDirServMsgBox(regSocRecvStruct->buffer, localizeConst(DIR_SERVER_SAYS));
 
 		if (!checkIfSuccessfulStartReg(regSocRecvStruct->buffer))
 		{
@@ -415,6 +429,10 @@ void winProcSocial(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		regSocRecvStruct = new RecvThreadStruct(ourRandStr, startRegMailCallback);
 		CreateThread(NULL, 0, recvThread, regSocRecvStruct, 0, NULL);
+	}
+	else if (message == WM_COMMAND && (HWND)lParam == bttnIsntThisUnsafeSocReg)
+	{
+		MessageBox(NULL, localizeConst(WHY_EMAIL_PASSWORD), L"", MB_OK);
 	}
 }
 

@@ -149,13 +149,25 @@ sttcLoginEmailPW = CreateWindow(
 	WS_VISIBLE | WS_CHILD,  // styles
 	20,         // starting x position
 	sttcLoginEmailPWY,         // starting y position
-	200,        // width
+	140,        // width
 	16,        // height
 	wndwLogin,       // parent window
 	NULL,       // No menu
 	(HINSTANCE)GetWindowLong(wndwLogin, GWL_HINSTANCE),
 	NULL);      // pointer not needed
 
+bttnIsntThisUnsafeMain = CreateWindow(
+	L"BUTTON",   // predefined class
+	localizeConst(ISNT_THIS_UNSAFE_BUTTON),// text
+	WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles
+	173,         // starting x position
+	sttcLoginEmailPWY - 2,         // starting y position
+	110,        // width
+	21,        // height
+	wndwLogin,       // parent window
+	NULL,       // No menu
+	(HINSTANCE)GetWindowLong(wndwLogin, GWL_HINSTANCE),
+	NULL);      // pointer not needed
 
 const int textLoginEmailPWY = sttcLoginEmailPWY + 21;
 textLoginEmailPW = CreateWindowEx(
@@ -194,6 +206,7 @@ SendMessage(bttnRegisterRecd, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(framExistingUser, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(sttcLoginEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(sttcLoginEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
+SendMessage(bttnIsntThisUnsafeMain, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(textLoginEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(textLoginEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(bttnLogin, WM_SETFONT, (WPARAM)gFontHandle, 0);
@@ -253,7 +266,7 @@ void loginMailCallback(RecvMailCodes successful)
 		//NOTE YES we can rely on $ here
 		if (strchr(loginRecvStruct->buffer, '$'))//$ means there's some error; display it to the user
 		{
-			localizeMsgBox(loginRecvStruct->buffer, localizeConst(ERROR_STR));
+			localizeDirServMsgBox(loginRecvStruct->buffer, localizeConst(ERROR_STR));
 			enableAllButtonsLogin();
 			delete loginRecvStruct;
 			return;
@@ -480,6 +493,10 @@ void winProcLogin(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		ShowWindow(wndwLogin, SW_HIDE);
 		ShowWindow(wndwRegisterRecd, SW_SHOW);
+	}
+	else if (message == WM_COMMAND && (HWND)lParam == bttnIsntThisUnsafeMain)
+	{
+		MessageBox(NULL, localizeConst(WHY_EMAIL_PASSWORD), L"", MB_OK);
 	}
 }
 

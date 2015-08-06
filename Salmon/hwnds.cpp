@@ -34,6 +34,7 @@ HWND bttnRegisterRecd;
 HWND framExistingUser;
 HWND sttcLoginEmailAddr;
 HWND sttcLoginEmailPW;
+HWND bttnIsntThisUnsafeMain;
 HWND textLoginEmailAddr;
 HWND textLoginEmailPW;//NOTE should be asterisks
 HWND bttnLogin;
@@ -50,6 +51,7 @@ HWND textSocNetID;
 HWND sttcSocEmailAddr;
 HWND textSocEmailAddr;
 HWND sttcSocEmailPW;
+HWND bttnIsntThisUnsafeSocReg;
 HWND textSocEmailPW;//NOTE should be asterisks
 HWND bttnSocRegSubmit;
 
@@ -60,6 +62,7 @@ HWND textRegRecCode;
 HWND sttcRecEmailAddr;
 HWND textRecEmailAddr;
 HWND sttcRecEmailPW;
+HWND bttnIsntThisUnsafeRecReg;
 HWND textRecEmailPW;//NOTE should be asterisks
 HWND bttnRecRegSubmit;
 

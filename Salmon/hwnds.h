@@ -33,6 +33,7 @@ extern HWND bttnRegisterRecd;
 extern HWND framExistingUser;
 extern HWND sttcLoginEmailAddr;
 extern HWND sttcLoginEmailPW;
+extern HWND bttnIsntThisUnsafeMain;
 extern HWND textLoginEmailAddr;
 extern HWND textLoginEmailPW;//NOTE should be ES_PASSWORD
 //extern HWND chckRemember;
@@ -49,6 +50,7 @@ extern HWND textSocNetID;//NOTE should be ES_NUMBER if renren
 extern HWND sttcSocEmailAddr;
 extern HWND textSocEmailAddr;
 extern HWND sttcSocEmailPW;
+extern HWND bttnIsntThisUnsafeSocReg;
 extern HWND textSocEmailPW;//NOTE should be ES_PASSWORD
 extern HWND bttnSocRegSubmit;
 
@@ -60,6 +62,7 @@ extern HWND textRegRecCode;
 extern HWND sttcRecEmailAddr;
 extern HWND textRecEmailAddr;
 extern HWND sttcRecEmailPW;
+extern HWND bttnIsntThisUnsafeRecReg;
 extern HWND textRecEmailPW;//NOTE should be ES_PASSWORD
 extern HWND bttnRecRegSubmit;
 

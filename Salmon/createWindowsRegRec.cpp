@@ -110,11 +110,24 @@ sttcRecEmailPW=CreateWindow(
 	WS_VISIBLE | WS_CHILD,  // styles
 	10,         // starting x position
 	sttcRecEmailPWY,         // starting y position
-	216,        // width
+	240,        // width
 	16,        // height
 	wndwRegisterRecd,       // parent window
 	NULL,       // No menu
 	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+	NULL);      // pointer not needed
+
+bttnIsntThisUnsafeRecReg = CreateWindow(
+	L"BUTTON",   // predefined class
+	localizeConst(ISNT_THIS_UNSAFE_BUTTON),// text
+	WS_VISIBLE | WS_CHILD,  // styles
+	190,         // starting x position
+	sttcRecEmailPWY - 2,         // starting y position
+	110,        // width
+	19,        // height
+	wndwRegisterRecd,       // parent window
+	NULL,       // No menu
+	(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
 	NULL);      // pointer not needed
 
 const int textRecEmailPWY = sttcRecEmailPWY + 20;
@@ -152,6 +165,7 @@ SendMessage(textRegRecCode, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(sttcRecEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(textRecEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(sttcRecEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
+SendMessage(bttnIsntThisUnsafeRecReg, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(textRecEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
 SendMessage(bttnRecRegSubmit, WM_SETFONT, (WPARAM)gFontHandle, 0);
 
@@ -196,10 +210,10 @@ void recRegMailCallback(RecvMailCodes successful)
 			trustLevelDisplayAndWriteFile(5);
 
 			//this is an implicit $7 from the directory server.
-			localizeMsgBox("$7", L"");
+			localizeDirServMsgBox("$7", L"");
 		}
 		else
-			localizeMsgBox(regRecRecvStruct->buffer, localizeConst(ERROR_STR));
+			localizeDirServMsgBox(regRecRecvStruct->buffer, localizeConst(ERROR_STR));
 
 		enableAllButtonsRecReg();
 		delete regRecRecvStruct;
@@ -270,4 +284,8 @@ void winProcRecd(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		regRecRecvStruct = new RecvThreadStruct(ourRandStr, recRegMailCallback);
 		CreateThread(NULL, 0, recvThread, regRecRecvStruct, 0, NULL);
 	}
+	else if (message == WM_COMMAND && (HWND)lParam == bttnIsntThisUnsafeRecReg)
+	{
+		MessageBox(NULL, localizeConst(WHY_EMAIL_PASSWORD), L"", MB_OK);
+	}	
 }

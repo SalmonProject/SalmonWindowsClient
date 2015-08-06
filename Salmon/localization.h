@@ -108,11 +108,14 @@ enum LocalizedString
 	MAILING_TO_IOS = 70,
 	MOBILECONFIG_HOWTO = 71,
 	ANDROID_VPNLIST_HEADER = 72,
-	CANT_SEND_EMAIL_WHILE_CONNECTED = 73
+	CANT_SEND_EMAIL_WHILE_CONNECTED = 73,
+	GAVE_UP_DUE_TO_CONNECTIVITY_PROBLEMS = 74,
+	WHY_EMAIL_PASSWORD = 75,
+	ISNT_THIS_UNSAFE_BUTTON = 76
 };
 
 
-void localizeMsgBox(const char* asciiStr, LPTSTR boxTitle);
+void localizeDirServMsgBox(const char* asciiStr, LPTSTR boxTitle);
 const LPTSTR localizeConst(LocalizedString theStrEnumMember);
 bool checkIfSuccessfulStartReg(const char* asciiStr);
 void setAllText();

@@ -196,7 +196,7 @@ bool checkIfSuccessfulStartReg(const char* asciiStr)
 	return (strncmp(asciiStr, "$5", 2) == 0);
 }
 
-void localizeMsgBox(const char* asciiStr, LPTSTR boxTitle)
+void localizeDirServMsgBox(const char* asciiStr, LPTSTR boxTitle)
 {
 	//special handling for message 9, which has to contain a rec code from the dir.
 	//NOTE this one has a special format: $9$thecode
@@ -257,7 +257,7 @@ void localizeMsgBox(const char* asciiStr, LPTSTR boxTitle)
 }
 
 
-const LPTSTR allStrings[74][NUM_LANGUAGES_SUPPORTED] =
+const LPTSTR allStrings[77][NUM_LANGUAGES_SUPPORTED] =
 {
 	//pop-up message boxes
 	//COULDNT_READ_CONFIG_FILE
@@ -818,6 +818,74 @@ L"عملیات درخواستی شما نیاز به فرستادن ایمیل �
 از آنجا که ما نمیخواهیم از برنامه ماهی آزاد برای فرستادن ایمیل های اسپم استفاده شود، سرور وی پی ان شما این حات خاص ایمیل را بلاک می کند\
 البته شما همچنان می توانید ایمیل های گوگل و غیره خود را در  صفحه براوزر چک کنید.\n\n\
 لطفا وی پی ان را قطع کنید و این عملیات را باز تکرار کنید "
+	},
+	//GAVE_UP_DUE_TO_CONNECTIVITY_PROBLEMS
+	{
+L"Your internet connection appears to be down, or unstable. Please try connecting again when your connection has stabilized.",
+L"你的互联网连接似乎已关闭，或不稳定。请尝试重新连接时，您的连接已经稳定。", //TODO TODO this is google translate
+L"اینترنت شما به نظر می رسد که قطع شده است یا پایدار نیست. لطفا بعد از اینکه ابنترنت شما پایدار شد دوباره تلاش کنید وصل شوید."
+	},
+	//WHY_EMAIL_PASSWORD
+	{
+L"The Salmon client needs your email password to be able to communicate with the directory server over email. \
+(We use email because the messages - first time registration, asking for a new server, asking for a recommendation \
+code for a friend - are small+infrequent enough to fit in email, and blocking all major email \
+providers would be a very extreme step for a censorship organization to take). \n\n\
+Your password is never sent to the Salmon Project or anywhere else, or written to your computer's hard disk: \
+it is only used to send and receive emails, and only to/from the address cs-backend-salmon@mx.uillinois.edu.\n\n\
+HOWEVER, it is certainly possible for a program like this to do bad things with your email. We can only promise \
+that we don't. To be sure we don't, you or someone you trust should either examine the \
+source code (https://github.com/SalmonProject/SalmonWindowsClient), \
+or be socially close enough to Salmon Project people to feel safe trusting us. Alternatively, you could make a throwaway \
+email account solely for use with Salmon (be sure the account and password are not at all related to other accounts you use!)\n\n\
+MOST IMPORTANTLY, even though the Salmon Project's version of this client does not do anything bad with your password, \
+other organizations could create and distribute a look-alike version that does. PLEASE verify that you have an original \
+copy of the program by following the signature verification instructions included (SignatureHelp.png). ALL AUTHENTIC COPIES OF SALMON should come \
+with a SignatureHelp.png that says the correct Certification Path is: USERTrust -> USERTrust RSA Certification Authority -> InCommon RSA Server CA -> salmon.cs.illinois.edu.",
+
+L"The Salmon client needs your email password to be able to communicate with the directory server over email. \
+(We use email because the messages are small+infrequent enough to fit in email, and blocking all major email \
+providers would be a very extreme step for a censorship organization to take). \n\n\
+Your password is never sent to the Salmon Project or anywhere else, or written to your computer's hard disk: \
+it is only used to send and receive emails, and only to/from the address cs-backend-salmon@mx.uillinois.edu.\n\n\
+HOWEVER, it is certainly possible for a program like this to do bad things with your email. We can only promise \
+that we don't. To be sure we don't, you or someone you trust should either examine the \
+source code (https://github.com/SalmonProject/SalmonWindowsClient), \
+or be socially close enough to Salmon Project people to feel safe trusting us. Alternatively, you could make a throwaway \
+email account solely for use with Salmon (be sure the account and password are not at all related to other accounts you use!)\n\n\
+MOST IMPORTANTLY, even though the Salmon Project's version of this client does not do anything bad with your password, \
+other organizations could create and distribute a look-alike version that does. PLEASE verify that you have an original \
+copy of the program by following the signature verification instructions included (SignatureHelp.png). ALL AUTHENTIC COPIES OF SALMON should come \
+with a SignatureHelp.png that says the correct Certification Path is: USERTrust -> USERTrust RSA Certification Authority -> InCommon RSA Server CA -> salmon.cs.illinois.edu.",
+
+L"نرم افزار ماهی آزاد به پسورد ایمیل شما نیاز دارد تا بتواند با سرور دایرکتوری تماس بگبرد.\n\
+این برنامه از ایمیل شما پیامی را به سرور دایرکتوری می فرستد و پاسخی دریافت می کند.\n\
+محتوای این پبام ها موارد زیر است:\n\
+ثبت نام کردن شما برای بار اول، درخواست سرور جدید، درخواست کد اعتبار برای دوستان.\n\
+دلیلی که ما از ایمیل شما برای این دستورها استفاده می کنیم این است که \n\
+بستن تمام وبسایت هایی که خدمات ایمیل ارایه می دهند برای سانسورچی کار خیلی افراطی است و احتمالا تا این حد جلو نمی روند. \n\
+پسورد شما هرگز به پروژه ماهی آزاد یا هیچ جای دیگری فرستاده نمی شود یا حتی در هارد دیسک کامپبوترنان نیز ذخیره نمی شود.\n\
+تنها ما برای فرستادن پیام به یک کامپیوتر خاص در آدرس زبر از ایمیل شما استفاده می کنیم \n\
+cs-backend-salmon@mx.uillinois.edu\n\
+با این حال ما به شما هشدار می دهیم که از پسورد خودتان محافظت کنید. \n\
+: برنامه هایی شبیه ماهی آزاد می توانند به شما آسیب جدی بزنند. کد برنامه ما در این آدرس اختیار شما است \n\
+(https://github.com/SalmonProject/SalmonWindowsClient)    \n\
+شما می توانید خودتان ببینید یا از کسی که با برنامه نویسی آشنا است بخواهید چک کند، که ما چگونه از اطلاعات شما استفاده می کنیم.\n\
+به هر حال شما می توانید یک آدرس ایمیل در هر سایتی که خواستید مخصوص وصل شدن به برنامه ماهی آزاد درست کنید و فقط برای این منظور از آن استفاده کنبد.\n\
+در این صورت سعی کنید ایمیلی که می سازید هیج ربطی به هویت شما یا ایمیل های دیگر یا پسوردهای دیگرتان نداشته باشد\n\
+مهمتر از همه چیز! با اینکه پروژه ماهی آزاد به دنبال آسیب رساندن به شما نیست اما ممکن است کسان دیگری این برنامه را تغییر دهند \n\
+تا از اطلاعات شما استفاده کنند. لطفا چک کنید که کپی اصلی این برنامه به دست شما رسیده است. \n\
+ما این برنامه را رمز گذاری کرده ایم و شما می توانید با دنبال کردن دستور خاصی ببینید که برنامه شما اصلی است یا نه. \n\
+SignatureHelp.png \n\
+فایلی است که دستور لازم را به شما می دهد و همه ی ورژن های ماهی آزاد باید این فایل را داشته باشد. \n\
+مسیر درست دراین فایل این است\n\
+USERTrust -> USERTrust RSA Certification Authority -> InCommon RSA Server CA -> salmon.cs.illinois.edu"
+	},
+	//ISNT_THIS_UNSAFE_BUTTON
+	{
+L"(Isn't this unsafe?!)",
+L"(Isn't this unsafe?!)", //NOTE: this is in a fairly narrow button... if translating, check that it's still visible.
+L"درباره امنیت"
 	}
 };
 
@@ -899,41 +967,44 @@ const WCHAR* countryFromLanguage(SalmonLanguage theLang)
 
 void setAllText()
 {
-	SetWindowText(wndwLogin,			localizeConst(LOGIN_OR_REG_TITLE));
-	SetWindowText(wndwMain ,			localizeConst(SALMON_TITLE));
-	SetWindowText(wndwRegisterRecd,		localizeConst(SALMON_REG_TITLE));
-	SetWindowText(wndwRegisterSocial,	localizeConst(SALMON_REG_TITLE));
-	SetWindowText(wndwWaiting,			localizeConst(SALMON_PLEASE_WAIT_TITLE));
-	SetWindowText(sttcWaiting,			localizeConst(WAITING_FOR_RESPONSE));
-	SetWindowText(bttnCancelWaiting,	localizeConst(CANCEL_BUTTON));
-	SetWindowText(sttcRegRecCode,		localizeConst(REC_CODE_FROM_FRIEND));
-	SetWindowText(sttcRecEmailAddr,		localizeConst(PROMPT_EMAIL_ADDR_VERBOSE));
-	SetWindowText(sttcRecEmailPW,		localizeConst(PROMPT_EMAIL_PW_VERBOSE));
-	SetWindowText(bttnRecRegSubmit,		localizeConst(SUBMIT_REGISTRATION));
-	SetWindowText(textEnterPost,		localizeConst(ENTER_POST_INSTRUCTIONS));
+	SetWindowText(wndwLogin,				localizeConst(LOGIN_OR_REG_TITLE));
+	SetWindowText(wndwMain ,				localizeConst(SALMON_TITLE));
+	SetWindowText(wndwRegisterRecd,			localizeConst(SALMON_REG_TITLE));
+	SetWindowText(wndwRegisterSocial,		localizeConst(SALMON_REG_TITLE));
+	SetWindowText(wndwWaiting,				localizeConst(SALMON_PLEASE_WAIT_TITLE));
+	SetWindowText(sttcWaiting,				localizeConst(WAITING_FOR_RESPONSE));
+	SetWindowText(bttnCancelWaiting,		localizeConst(CANCEL_BUTTON));
+	SetWindowText(sttcRegRecCode,			localizeConst(REC_CODE_FROM_FRIEND));
+	SetWindowText(sttcRecEmailAddr,			localizeConst(PROMPT_EMAIL_ADDR_VERBOSE));
+	SetWindowText(sttcRecEmailPW,			localizeConst(PROMPT_EMAIL_PW_VERBOSE));
+	SetWindowText(bttnIsntThisUnsafeMain,	localizeConst(ISNT_THIS_UNSAFE_BUTTON));
+	SetWindowText(bttnRecRegSubmit,			localizeConst(SUBMIT_REGISTRATION));
+	SetWindowText(textEnterPost,			localizeConst(ENTER_POST_INSTRUCTIONS));
 	//COMMENTRENRENSetWindowText(rdioFacebook,			localizeConst(FACEBOOK_STR));
 	//COMMENTRENRENSetWindowText(rdioRenren,			localizeConst(RENREN_STR));
-	SetWindowText(sttcSocNetID,			localizeConst(FACEBOOK_ID_INSTRUCTIONS));
-	SetWindowText(sttcSocEmailAddr,		localizeConst(PROMPT_EMAIL_ADDR_VERBOSE));
-	SetWindowText(sttcSocEmailPW,		localizeConst(PROMPT_EMAIL_PW_VERBOSE));
-	SetWindowText(bttnSocRegSubmit,		localizeConst(SUBMIT_REGISTRATION));
-	SetWindowText(sttcConnectStatus,	gVPNConnected ? localizeConst(VPN_STATUS_CONNECTED) : localizeConst(VPN_STATUS_DISCONNECTED));
-	SetWindowText(bttnConnect,			localizeConst(CONNECT_BUTTON));
-	SetWindowText(bttnCancelConnect,	localizeConst(CANCEL_CONNECTING_BUTTON));
-	SetWindowText(bttnDisconnect,		localizeConst(DISCONNECT_BUTTON));
-	SetWindowText(bttnShowHideOptions,	localizeConst(SHOW_ADVANCED_VIEW));
-	SetWindowText(sttcTrustStatus,		localizeConst(TRUST_LVL_ORDINARY));
-	SetWindowText(bttnGetRec,			localizeConst(GET_REC_CODE_FOR_FRIEND));
-	SetWindowText(framRedeemCode,		localizeConst(BOOST_TRUST_W_CODE));
-	SetWindowText(bttnRedeemCode,		localizeConst(REDEEM_REC_CODE));
-	SetWindowText(bttnWipeConfig,		localizeConst(WIPE_CONFIG));
-	SetWindowText(framFirstTime,		localizeConst(FIRST_TIME_USER_Q));
-	SetWindowText(bttnRegisterSocial,	localizeConst(REG_FB_OR_RENREN));
-	SetWindowText(bttnRegisterRecd,		localizeConst(REG_RECOMMENDED));
-	SetWindowText(framExistingUser,		localizeConst(EXISTING_USER_Q));
-	SetWindowText(sttcLoginEmailAddr,	localizeConst(PROMPT_EMAIL_ADDR));
-	SetWindowText(sttcLoginEmailPW,		localizeConst(PROMPT_EMAIL_PASSWORD));
-	SetWindowText(bttnLogin,			localizeConst(LOGIN_BUTTON));
-	SetWindowText(bttnAndroidGetter,	localizeConst(GET_CREDENTIALS_FOR_ANDROID));
-	SetWindowText(bttniOSGetter, localizeConst(GET_CREDENTIALS_FOR_IOS));
+	SetWindowText(sttcSocNetID,				localizeConst(FACEBOOK_ID_INSTRUCTIONS));
+	SetWindowText(sttcSocEmailAddr,			localizeConst(PROMPT_EMAIL_ADDR_VERBOSE));
+	SetWindowText(sttcSocEmailPW,			localizeConst(PROMPT_EMAIL_PW_VERBOSE));
+	SetWindowText(bttnIsntThisUnsafeSocReg, localizeConst(ISNT_THIS_UNSAFE_BUTTON));
+	SetWindowText(bttnSocRegSubmit,			localizeConst(SUBMIT_REGISTRATION));
+	SetWindowText(sttcConnectStatus,		gVPNConnected ? localizeConst(VPN_STATUS_CONNECTED) : localizeConst(VPN_STATUS_DISCONNECTED));
+	SetWindowText(bttnConnect,				localizeConst(CONNECT_BUTTON));
+	SetWindowText(bttnCancelConnect,		localizeConst(CANCEL_CONNECTING_BUTTON));
+	SetWindowText(bttnDisconnect,			localizeConst(DISCONNECT_BUTTON));
+	SetWindowText(bttnShowHideOptions,		localizeConst(SHOW_ADVANCED_VIEW));
+	SetWindowText(sttcTrustStatus,			localizeConst(TRUST_LVL_ORDINARY));
+	SetWindowText(bttnGetRec,				localizeConst(GET_REC_CODE_FOR_FRIEND));
+	SetWindowText(framRedeemCode,			localizeConst(BOOST_TRUST_W_CODE));
+	SetWindowText(bttnRedeemCode,			localizeConst(REDEEM_REC_CODE));
+	SetWindowText(bttnWipeConfig,			localizeConst(WIPE_CONFIG));
+	SetWindowText(framFirstTime,			localizeConst(FIRST_TIME_USER_Q));
+	SetWindowText(bttnRegisterSocial,		localizeConst(REG_FB_OR_RENREN));
+	SetWindowText(bttnRegisterRecd,			localizeConst(REG_RECOMMENDED));
+	SetWindowText(framExistingUser,			localizeConst(EXISTING_USER_Q));
+	SetWindowText(sttcLoginEmailAddr,		localizeConst(PROMPT_EMAIL_ADDR));
+	SetWindowText(sttcLoginEmailPW,			localizeConst(PROMPT_EMAIL_PASSWORD));
+	SetWindowText(bttnIsntThisUnsafeRecReg, localizeConst(ISNT_THIS_UNSAFE_BUTTON));
+	SetWindowText(bttnLogin,				localizeConst(LOGIN_BUTTON));
+	SetWindowText(bttnAndroidGetter,		localizeConst(GET_CREDENTIALS_FOR_ANDROID));
+	SetWindowText(bttniOSGetter,			localizeConst(GET_CREDENTIALS_FOR_IOS));
 }
