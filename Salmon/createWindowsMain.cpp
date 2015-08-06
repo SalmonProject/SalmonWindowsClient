@@ -44,17 +44,16 @@ void writeMobileconfigToFile(WCHAR* fname, WCHAR* ipAddr, WCHAR* psk, WCHAR* vpn
 
 //for ssl version:
 #include "../libvmime/src/openssl/crypto.h"
-std::wstring getSalmonClientAndOpenSSLVersions()
+const std::wstring& getSalmonClientAndOpenSSLVersions()
 {
-	const WCHAR* salmonVer = SALMON_CLIENT_VERSION_STRING;
+	const std::wstring salmonVer(SALMON_CLIENT_VERSION_STRING);
 	const char* aSSLV = SSLeay_version(SSLEAY_VERSION);
 	WCHAR* wSSLV = new WCHAR[strlen(aSSLV) + 1];
 	mbstowcs(wSSLV, aSSLV, strlen(aSSLV));
-	std::wstring wholeVerString(salmonVer);
-	wholeVerString += L"\n";
-	wholeVerString += wSSLV;
+	wSSLV[strlen(aSSLV)] = 0;
+	static std::wstring* wholeVerString = new std::wstring(salmonVer+L"\n"+wSSLV);
 	delete wSSLV;
-	return wholeVerString;
+	return *wholeVerString;
 }
 
 
@@ -332,7 +331,7 @@ void getRecMailCallback(RecvMailCodes successful)
 		ShowWindow(wndwWaiting, SW_HIDE);
 		SetFocus(wndwMain);
 
-		localizeMsgBox(mainRecvStruct->buffer, localizeConst(DIR_SERVER_SAYS));
+		localizeDirServMsgBox(mainRecvStruct->buffer, localizeConst(DIR_SERVER_SAYS));
 		enableAllButtonsMain();
 
 		if (!strncmp(mainRecvStruct->buffer, "$0", 2))
@@ -366,7 +365,7 @@ void redeemCodeMailCallback(RecvMailCodes successful)
 	{
 		ShowWindow(wndwWaiting, SW_HIDE);
 		SetFocus(wndwMain);
-		localizeMsgBox(mainRecvStruct->buffer, localizeConst(DIR_SERVER_SAYS));
+		localizeDirServMsgBox(mainRecvStruct->buffer, localizeConst(DIR_SERVER_SAYS));
 
 		if (!strncmp(mainRecvStruct->buffer, "$17", 3) || !strncmp(mainRecvStruct->buffer, "$16", 3) || !strncmp(mainRecvStruct->buffer, "$10", 3))
 			trustLevelDisplayAndWriteFile(5);

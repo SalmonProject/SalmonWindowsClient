@@ -113,11 +113,11 @@ void showConnectionStatus(bool isConnected)
 	}
 }
 
-bool lineIsJustWhitespace(char* theLine)
+bool lineIsJustWhitespace(const char* theLine)
 {
 	if (theLine[0] == 0)
 		return true;
-	char* cur = theLine;
+	const char* cur = theLine;
 	while (*cur)
 	{
 		if (!isspace(*cur))
@@ -141,11 +141,11 @@ __int64 getHNsecsSince1600()
 
 //using the same password on all servers can actually lead to some kind of bad mischief, so the actual per-server password will be derived (as below) from sha1(base_password, server_ip)
 //NOTE: pwToUse must be size VPN_DERIVED_PASSWORD_LENGTH + 1
-void derivePassword(char* pwToUse, char* gBaseVPNPassword, char* serverIP_Addr)
+void derivePassword(char* pwToUse, const char* theBaseVPNPassword, const char* serverIP_Addr)
 {
 	char shaInBuf[300];
 	unsigned char shaOut[20];
-	strcpy(shaInBuf, gBaseVPNPassword);
+	strcpy(shaInBuf, theBaseVPNPassword);
 	strcat(shaInBuf, serverIP_Addr);
 
 	sha1((unsigned char*)shaInBuf, strlen(shaInBuf), shaOut);
@@ -156,7 +156,7 @@ void derivePassword(char* pwToUse, char* gBaseVPNPassword, char* serverIP_Addr)
 }
 
 //NOTE: pwToUse must be size VPN_DERIVED_PASSWORD_LENGTH + 1
-void deriveUsername(char* unToUse, char* gBaseVPNPassword, char* serverIP_Addr)
+void deriveUsername(char* unToUse, const char* theBaseVPNPassword, const char* serverIP_Addr)
 {
 	char modifiedIP[60];
 	strcpy(modifiedIP, serverIP_Addr);
@@ -165,7 +165,7 @@ void deriveUsername(char* unToUse, char* gBaseVPNPassword, char* serverIP_Addr)
 
 	char shaInBuf[300];
 	unsigned char shaOut[20];
-	strcpy(shaInBuf, gBaseVPNPassword);
+	strcpy(shaInBuf, theBaseVPNPassword);
 	strcat(shaInBuf, modifiedIP);
 
 	sha1((unsigned char*)shaInBuf, strlen(shaInBuf), shaOut);
@@ -187,7 +187,7 @@ void reportSoftEtherError()
 	LocalFree(pTemp);
 }
 
-void systemNice(char* execMe)
+void systemNice(const char* execMe)
 {
 	wchar_t toExecW[EXEC_VPNCMD_BUFSIZE];
 	mbstowcs(toExecW, execMe, EXEC_VPNCMD_BUFSIZE);
@@ -204,7 +204,7 @@ void systemNice(char* execMe)
 	WaitForSingleObject(pi.hProcess, INFINITE);
 }
 
-void uuidBinToString(WCHAR* dest, BYTE* src)
+void uuidBinToString(WCHAR* dest, const BYTE* src)
 {
 	wsprintf(dest, L"%x-%x-%x-%x-%x%x", 
 		*(DWORD*)(src),
@@ -217,7 +217,7 @@ void uuidBinToString(WCHAR* dest, BYTE* src)
 	dest[19] = L'a';//¯\_(ツ)_/¯
 }
 
-void writeMobileconfigToFile(WCHAR* fname, WCHAR* ipAddr, WCHAR* psk, WCHAR* vpnName, WCHAR* vpnPW)
+void writeMobileconfigToFile(const WCHAR* fname, const WCHAR* ipAddr, const WCHAR* psk, const WCHAR* vpnName, const WCHAR* vpnPW)
 {
 	//NOTE minor detail: need to encode the PSK as base64
 	char pskA[20];

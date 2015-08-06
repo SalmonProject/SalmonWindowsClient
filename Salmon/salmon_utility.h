@@ -24,16 +24,16 @@ FILE* openConfigFile(const char* filename, const char* mode);
 void unlinkConfigFile(const char* filename);
 void trustLevelDisplayAndWriteFile(int level);
 void showConnectionStatus(bool isConnected);
-bool lineIsJustWhitespace(char* theLine);
+bool lineIsJustWhitespace(const char* theLine);
 bool fileExists(LPCTSTR szPath);
 __int64 getHNsecsSince1600();
-void systemNiceW(wchar_t* execMe);
-void systemNice(char* execMe);
+void systemNiceW(const wchar_t* execMe);
+void systemNice(const char* execMe);
 void loadCurrentVPN_Addr();
 
-void derivePassword(char* pwToUse, char* gBaseVPNPassword, char* serverIP_Addr);
-void deriveUsername(char* pwToUse, char* gBaseVPNPassword, char* serverIP_Addr);
+void derivePassword(char* pwToUse, const char* theBaseVPNPassword, const char* serverIP_Addr);
+void deriveUsername(char* pwToUse, const char* theBaseVPNPassword, const char* serverIP_Addr);
 
-void writeMobileconfigToFile(WCHAR* fname, WCHAR* ipAddr, WCHAR* psk, WCHAR* vpnName, WCHAR* vpnPW);
+void writeMobileconfigToFile(const WCHAR* fname, const WCHAR* ipAddr, const WCHAR* psk, const WCHAR* vpnName, const WCHAR* vpnPW);
 
 #endif

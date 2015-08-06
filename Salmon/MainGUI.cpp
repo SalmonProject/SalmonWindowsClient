@@ -130,7 +130,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
 	gFontHandle = CreateFontIndirect(&ncm.lfMessageFont);
 
-	//CreateWindow() calls for buttons and stuff put elsewhere to reduce clutter
+	//CreateWindow() calls for buttons, text boxes, etc. are in the various createWindows____.cpp files.
 	createWindowsSocial(_win32_WindowClass, hThisInstance);
 	createWindowsLogin(_win32_WindowClass, hThisInstance);
 	createWindowsMain(_win32_WindowClass, hThisInstance);

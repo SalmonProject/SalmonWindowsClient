@@ -326,7 +326,7 @@ DWORD WINAPI measureCurRTT_Thread(LPVOID dummyArg)
 extern "C" size_t popenOneShotR(const char* cmdToExec, char* buf, size_t bufSize);
 
 //returns a malloc()'d pointer to a buffer with the output of accountget consetting
-char* accountGet(char* conSetting)
+char* accountGet(const char* conSetting)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
 	sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd accountget %s", g_vpncmdPath, conSetting);
@@ -337,7 +337,7 @@ char* accountGet(char* conSetting)
 
 //creates the SoftEther "connection setting" for the specified IP address. Requires the gBaseVPNPassword global 
 //variable to contain the right password, and requires that the right certificate file is at %APPDATA%\salmon\serverip.pem
-void createConnectionSetting(char* serverIP_Addr)
+void createConnectionSetting(const char* serverIP_Addr)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
 
@@ -422,7 +422,7 @@ void createConnectionSetting(char* serverIP_Addr)
 //creates the SoftEther "connection setting" for the specified VPN Gate IP address. 
 //This version makes the appropriate changes for VPN Gate: port not fixed to 443, uses VPNGATE hub, uses anonymous login (user vpn, no password)
 //Requires that the right certificate file is at %APPDATA%\salmon\serverip.pem
-void createVPNGateConnectionSetting(VPNInfo theServerInfo)
+void createVPNGateConnectionSetting(const VPNInfo& theServerInfo)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
 
@@ -482,7 +482,7 @@ void createVPNGateConnectionSetting(VPNInfo theServerInfo)
 
 
 enum HTTPSResult { HTTPSResult_Failed = 0, HTTPSResult_Succeeded = 1, HTTPSResult_Unfinished = 2 };
-bool checkHTTPS(const char* serverIP_Addr);
+bool checkSoftEtherHTTPS(const std::string& serverIP_Addr);
 class HTTPSArgPasser
 {
 public:
@@ -493,7 +493,7 @@ public:
 	//the thread that created httpsCheckerThread should release it as soon as it is
 	//no longer interested in the contents of this object.
 	HANDLE okToDelete;
-	HTTPSArgPasser(char* sAddr)
+	HTTPSArgPasser(const char* sAddr)
 	{
 		theServerAddr = string(sAddr);
 		theResult = HTTPSResult_Unfinished;
@@ -505,8 +505,7 @@ private:
 DWORD WINAPI httpsCheckerThread(LPVOID lpParam)
 {
 	HTTPSArgPasser* storeResult = (HTTPSArgPasser*)lpParam;
-	string holdStr = storeResult->theServerAddr;
-	bool httpsSuccess = checkHTTPS(holdStr.c_str());
+	bool httpsSuccess = checkSoftEtherHTTPS(storeResult->theServerAddr);
 	if (httpsSuccess)
 		storeResult->theResult = HTTPSResult_Succeeded;
 	else
@@ -527,7 +526,7 @@ DWORD WINAPI httpsCheckerThread(LPVOID lpParam)
 //attempt to connect to a VPN server; there should already be a 'connection setting' set up inside softether.
 //return value:	CONNECT_SERVER_SUCCESS obvious, CONNECT_SERVER_OFFLINE connection attempt and https get failed, 
 //				CONNECT_SERVER_CLIENT_ERROR we determined our connection setting wasn't correct, CONNECT_SERVER_ERROR https get succeeded, connect failed
-ConnectServerStatus connectToVPNServer(VPNInfo& theServer)
+ConnectServerStatus connectToVPNServer(const VPNInfo& theServer)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
 
@@ -573,7 +572,7 @@ ConnectServerStatus connectToVPNServer(VPNInfo& theServer)
 			strcpy(gCurrentConnection.addr, theServer.addr);
 			gCurrentConnection.bandwidth = theServer.bandwidth;
 			//rtt and score updated in thread
-			gCurrentConnection.failureCount = theServer.failureCount = 0;
+			gCurrentConnection.failureCount = 0;
 			gCurrentConnection.lastAttempt = 0;
 
 			//measureCurServerRTT() takes ~60ms even for a ~0ms RTT, so let's not slow things down more than necessary here.

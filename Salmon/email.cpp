@@ -46,21 +46,21 @@ using std::string;
 
 //Tries to get a new server from the directory server. Returns true if successful.
 //writes the gotten IP address into ipAddrBuf if successful. This function blocks until the dir server responds.
-NeedServerSuccess needServer(ConnectAnyVPNAttemptResult res, vector<VPNInfo>& VPNGateServers)
+NeedServerSuccess needServer(const ConnectAnyVPNAttemptResult& res, vector<VPNInfo>* VPNGateServers)
 {
 	//make the needServer request. we need to tell the directory about all of the servers we failed to connect to.
 	string needServerString = "needServer";
 	if (!res.triedAddrs.empty())
 	{
 		needServerString += "\n^*tried:^*";
-		for (set<string>::iterator itty = res.triedAddrs.begin(); itty != res.triedAddrs.end(); itty++)
+		for (set<string>::const_iterator itty = res.triedAddrs.begin(); itty != res.triedAddrs.end(); itty++)
 			needServerString += ("\n" + *itty);
 	}
 
 	if (!res.serverErrorAddrs.empty())
 	{
 		needServerString += "\n^*error:^*";
-		for (set<string>::iterator itty = res.serverErrorAddrs.begin(); itty != res.serverErrorAddrs.end(); itty++)
+		for (set<string>::const_iterator itty = res.serverErrorAddrs.begin(); itty != res.serverErrorAddrs.end(); itty++)
 			needServerString += ("\n" + *itty);
 	}
 
@@ -82,7 +82,7 @@ NeedServerSuccess needServer(ConnectAnyVPNAttemptResult res, vector<VPNInfo>& VP
 
 	if (tempRecvStruct.charsRecvd > 0 && strchr(tempRecvStruct.buffer, '$')) //dir server indicating an error. (but might be including VPN Gate servers.)
 	{
-		localizeMsgBox(tempRecvStruct.buffer, localizeConst(ERROR_STR));
+		localizeDirServMsgBox(tempRecvStruct.buffer, localizeConst(ERROR_STR));
 		ShowWindow(wndwWaiting, SW_HIDE);
 
 		bool gotAnyVPNGates = false;
@@ -217,7 +217,7 @@ bool sendMail(const WCHAR* send_buf, char* rndStr)
 //It's already a little unfortunate that we're asking them for an email password...
 //so rather than having a general "send mail" function, which would be creepy, 
 //the program is only capable of sending to the salmon address, or to the user's own address.
-bool sendSelfMail(const WCHAR* send_buf, WCHAR* mailSubject)
+bool sendSelfMail(const WCHAR* send_buf, const WCHAR* mailSubject)
 {
 	//By default, SoftEther servers don't let clients do SMTP, which is reasonable.
 	//So, if the user is connected and wants to do something that would send an email 

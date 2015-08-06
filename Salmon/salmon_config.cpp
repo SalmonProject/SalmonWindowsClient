@@ -388,7 +388,7 @@ bool readExistingSConfig()
 }
 
 //remove any server entry from sconfig and salmonconfig that has IP address purgeThisIP
-void purgeServer(char* purgeThisIP)
+void purgeServer(const char* purgeThisIP)
 {
 	//first, check that this is actually a purge line.
 	if (strstr(purgeThisIP, "PURGE") != purgeThisIP)
@@ -497,13 +497,13 @@ void purgeServer(char* purgeThisIP)
 	free(wholeFileBuf);
 }
 
-void executeAllPurges(char* buf)
+void executeAllPurges(const char* buf)
 {
 	//We are interested in any "purge this ip addr" lines.
-	char* purgeLine = strstr(buf, "PURGE");
+	const char* purgeLine = strstr(buf, "PURGE");
 	while (purgeLine)
 	{
-		char* purgeEnd = strchr(purgeLine, '\n');
+		const char* purgeEnd = strchr(purgeLine, '\n');
 		if (!purgeEnd)
 			break;//malformed
 
@@ -598,7 +598,7 @@ void writeTrustToBlankFile(int trust)
 	fclose(writeSalmonConfig);
 }
 
-void writeTrustAndVPNToBlankFile(int trust, char* theVPNpw)
+void writeTrustAndVPNToBlankFile(int trust, const char* theVPNpw)
 {
 	FILE* writeSalmonConfig = openConfigFile("SalmonConfig.txt", "wt");
 	char toWrite[40];

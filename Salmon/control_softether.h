@@ -24,12 +24,12 @@ extern char g_vpncmdPath[VPNCMD_PATH_BUFSIZE];
 void load_vpncmdexe_Path();
 
 void disconnectVPN();
-void createConnectionSetting(char* serverIP_Addr);
-void createVPNGateConnectionSetting(VPNInfo theServerInfo);
+void createConnectionSetting(const char* serverIP_Addr);
+void createVPNGateConnectionSetting(const VPNInfo& theServerInfo);
 void deleteConnectionSettings();
 enum ConnectServerStatus { CONNECT_SERVER_SUCCESS, CONNECT_SERVER_OFFLINE,
 							CONNECT_SERVER_CLIENT_ERROR, CONNECT_SERVER_ERROR};
-ConnectServerStatus connectToVPNServer(VPNInfo& theServer);
+ConnectServerStatus connectToVPNServer(const VPNInfo& theServer);
 bool checkConnection();
 int measureCurServerRTT();
 

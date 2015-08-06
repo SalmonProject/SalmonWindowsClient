@@ -27,7 +27,7 @@ extern char gUserEmailAccount[EMAIL_ADDR_BUFSIZE];
 extern char gUserEmailPassword[EMAIL_PASSWORD_BUFSIZE];
 
 bool sendMail(const WCHAR* send_buf, char* rndStr);
-bool sendSelfMail(const WCHAR* send_buf, WCHAR* mailSubject);
+bool sendSelfMail(const WCHAR* send_buf, const WCHAR* mailSubject);
 bool sendMobileconfigs();
 
 enum RecvMailCodes
@@ -85,6 +85,6 @@ enum NeedServerSuccess
 	NEED_SERVER_GOT_SALMON = 1,
 	NEED_SERVER_GOT_VPNGATE = 2
 };
-NeedServerSuccess needServer(ConnectAnyVPNAttemptResult res, std::vector<VPNInfo>& VPNGateServers);
+NeedServerSuccess needServer(const ConnectAnyVPNAttemptResult& res, std::vector<VPNInfo>* VPNGateServers);
 
 #endif 

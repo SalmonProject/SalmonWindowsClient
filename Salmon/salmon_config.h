@@ -23,8 +23,8 @@
 
 void wipeConfig();
 
-void purgeServer(char* purgeThisIP);
-void executeAllPurges(char* buf);
+void purgeServer(const char* purgeThisIP);
+void executeAllPurges(const char* buf);
 
 bool getSConfig();
 

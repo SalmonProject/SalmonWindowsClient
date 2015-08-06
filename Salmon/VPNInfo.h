@@ -49,7 +49,7 @@ bool addVPNInfo(char* ipAddrBuf, int serverBW, char* serverPSK);
 bool addVPNInfo(VPNInfo toAdd);
 
 bool parseNewSalmonServer(char* recvBuffer);
-bool parseVPNGateItem(char* curVPNgate, std::vector<VPNInfo>& VPNGateServers);
+bool parseVPNGateItem(const char* curVPNgate, std::vector<VPNInfo>* VPNGateServers);
 
 
 #endif //_SALMON_INCL_GUARD_VPNINFO_H_

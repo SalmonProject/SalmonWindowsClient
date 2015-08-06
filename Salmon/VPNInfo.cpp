@@ -159,7 +159,7 @@ bool parseNewSalmonServer(char* recvBuffer)
 	return true;
 }
 
-bool parseVPNGateItem(char* curVPNgate, vector<VPNInfo>& VPNGateServers)
+bool parseVPNGateItem(const char* curVPNgate, vector<VPNInfo>* VPNGateServers)
 {
 	//parse the line. format: VPNGATE1.2.3.4:443 psk(always=vpn) offeredbw the*cert*star*delims
 	char ipPortVPNGate[80];
@@ -182,13 +182,13 @@ bool parseVPNGateItem(char* curVPNgate, vector<VPNInfo>& VPNGateServers)
 	ipPortVPNGate[strchr(curVPNgate, ' ') - curVPNgate] = 0;
 
 	//get pskVPNGate
-	char* tempPSK = strchr(curVPNgate, ' ') + 1;
+	const char* tempPSK = strchr(curVPNgate, ' ') + 1;
 	strncpy(pskVPNGate, tempPSK, 9);
 	if (strchr(pskVPNGate, ' '))
 		*strchr(pskVPNGate, ' ') = 0;
 
 	//get offeredBW_VPNGate
-	char* tempBW = strchr(tempPSK, ' ') + 1;
+	const char* tempBW = strchr(tempPSK, ' ') + 1;
 	char tempConvertBW[20];
 	strncpy(tempConvertBW, tempBW, 19);
 	if (strchr(tempConvertBW, ' '))
@@ -196,8 +196,8 @@ bool parseVPNGateItem(char* curVPNgate, vector<VPNInfo>& VPNGateServers)
 	offeredBW_VPNGate = atoi(tempConvertBW);
 
 	//get certVPNGate from the buffer...
-	char* certStart = strchr(tempBW, ' ') + 1;
-	char* certEnd = strchr(certStart, '\n');
+	const char* certStart = strchr(tempBW, ' ') + 1;
+	const char* certEnd = strchr(certStart, '\n');
 	if (certEnd - certStart >= 2500)
 	{
 		MessageBox(NULL, L"Certificate for VPN Gate server is too large.", L"Error", MB_OK);
@@ -228,7 +228,7 @@ bool parseVPNGateItem(char* curVPNgate, vector<VPNInfo>& VPNGateServers)
 	VPNInfo new_ip(ipPortVPNGate, offeredBW_VPNGate, 50, offeredBW_VPNGate - 50, 0, pskVPNGate);
 	new_ip.lastAttempt = 0;
 	new_ip.secondsTilNextAttempt = 2 * 24 * 3600 + rand() % (5 * 24 * 3600);
-	VPNGateServers.push_back(new_ip);
+	VPNGateServers->push_back(new_ip);
 
 	return true;
 }
