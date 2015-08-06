@@ -58,7 +58,7 @@ void cCertVerifier::verify(ref <cert::certificateChain> chain, const string& hos
             {
                 ref <cert::X509Certificate> x509 = cert.dynamicCast<cert::X509Certificate>();
 
-                TRACE("CERT Server X.509 certificate at chain pos %d: %s", i+1, x509->getIssuer().c_str());
+                TRACE("CERT Server X.509 certificate at chain pos %d: %s", i+1, x509->getIssuerString().c_str());
             }
             else
             {
