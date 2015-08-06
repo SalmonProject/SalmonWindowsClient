@@ -35,6 +35,16 @@ using std::vector;
 
 #include "connect_attempt.h"
 
+bool checkGoogleHTTPS();
+bool checkMicrosoftUpdateHTTPS();
+bool connectedToInternet()
+{
+	if (gChosenLanguage == SALMON_LANGUAGE_ZH)
+		return checkMicrosoftUpdateHTTPS();
+	else
+		return checkGoogleHTTPS(); 
+}
+
 void showServersLeft(int numLeft)
 {
 	wchar_t connCountStr[40];
@@ -58,6 +68,7 @@ ConnectAnyVPNAttemptResult tryConnectAnyServer()
 	time_t now;
 
 	bool nowTryingSkippedOnes = false;
+	bool okToNeedServer = true;
 
 	vector<int> tryLater;
 
@@ -86,18 +97,58 @@ TrySomeServers:
 			continue;
 		}
 
+
+
 		ConnectServerStatus conStatus = connectToVPNServer(knownServers[i]);
 
 		if (conStatus == CONNECT_SERVER_SUCCESS)
 		{
+			knownServers[i].failureCount = 0;
 			ret.connectedSuccessfully = true;
 			return ret;
 		}
+		//Although the server appears offline, it might be that we have spotty internet. Before reporting that the server is 
+		//blocked, check+double-check internet connectivity, and double check the server. If for any server, both the check
+		//and double-check of internet connectivity fail, then we WILL NOT send a needServer, and will instead tell the user
+		//that their internet appears to be temporarily down.
 		else if (conStatus == CONNECT_SERVER_OFFLINE)
 		{
-			ret.triedAddrs.insert(knownServers[i].addr);
-			knownServers[i].lastAttempt = now;
-			knownServers[i].failureCount++;
+			if(connectedToInternet())
+			{
+				ConnectServerStatus conTry2Status = connectToVPNServer(knownServers[i]);
+				if (conTry2Status == CONNECT_SERVER_SUCCESS)
+				{
+					knownServers[i].failureCount = 0;
+					ret.connectedSuccessfully = true;
+					return ret;
+				}
+				else if(conTry2Status == CONNECT_SERVER_OFFLINE && connectedToInternet())
+				{	
+					ret.triedAddrs.insert(knownServers[i].addr);
+					knownServers[i].lastAttempt = now;
+					knownServers[i].failureCount++;
+				}
+				else if (conTry2Status == CONNECT_SERVER_OFFLINE)
+				{
+					//If we've detected internet connectivity problems, it is NOT ok to make a (probably erroneous) needServer request.
+					okToNeedServer = false;
+				}
+				else if (conStatus == CONNECT_SERVER_ERROR)
+				{
+					ret.serverErrorAddrs.insert(knownServers[i].addr);
+					knownServers[i].lastAttempt = now;
+					knownServers[i].failureCount++;
+				}
+				else //if(conStatus == CONNECT_SERVER_CLIENT_ERROR)
+				{
+					//just pretend we didn't try; this lets needServer fix our bad entry
+				}
+			}
+			else
+			{
+				//If we've detected internet connectivity problems, it is NOT ok to make a (probably erroneous) needServer request.
+				okToNeedServer = false;
+			}
 		}
 		else if (conStatus == CONNECT_SERVER_ERROR)
 		{
@@ -115,6 +166,17 @@ TrySomeServers:
 	{
 		nowTryingSkippedOnes = true;
 		goto TrySomeServers;
+	}
+
+	//If we've detected internet connectivity problems, it is NOT ok to make a (probably erroneous) needServer request.
+	//We can get the correct behavior (all servers tried, but no needServer generated) by pretending the user cancelled the 
+	//request right after all servers were tried, but before tryConnectAnyServer() returned.
+	if (!okToNeedServer)
+	{
+		MessageBox(NULL, localizeConst(GAVE_UP_DUE_TO_CONNECTIVITY_PROBLEMS), L"", MB_OK);
+		ret.connectedSuccessfully = false; //(should not be necessary, but just to be explicit)
+		cancelConnectionAttempt = true;
+		return ret;
 	}
 
 	//NOTE: this function doesn't get called if the user cancels the attempt, and that's ok.
@@ -144,7 +206,7 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 			goto EndConnAttemptThread;
 
 		vector<VPNInfo> VPNGateServers; //if needServer gets VPNGate servers for us to process, this is how it tells us about them
-		NeedServerSuccess gotAnyServers = needServer(res, VPNGateServers);
+		NeedServerSuccess gotAnyServers = needServer(res, &VPNGateServers);
 		if (gotAnyServers == NEED_SERVER_GOT_NONE)
 		{
 			MessageBox(NULL, localizeConst(SORRY_NO_SERVERS_AVAILABLE), localizeConst(ERROR_STR), MB_OK);
@@ -175,6 +237,7 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 
 				if (connectToVPNServer(knownServers[indexKnownServers]) == CONNECT_SERVER_SUCCESS)
 				{
+					knownServers[indexKnownServers].failureCount = 0;
 					writeSConfigFromKnownServers();
 					break;
 				}
