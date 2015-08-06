@@ -39,6 +39,21 @@ X509Certificate::~X509Certificate()
 {
 }
 
+void X509Certificate::checkValidity() const
+{
+	const datetime now = datetime::now();
+
+	if (now < getActivationDate())
+	{
+		std::exception ex("Certificate not yet valid.");
+		throw ex;
+	}
+	else if (now > getExpirationDate())
+	{
+		std::exception ex("Certificate expired.");
+		throw ex;
+	}
+}
 
 } // cert
 } // security

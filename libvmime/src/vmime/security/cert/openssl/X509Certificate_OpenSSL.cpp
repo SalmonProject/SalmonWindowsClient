@@ -269,22 +269,19 @@ const byteArray X509Certificate_OpenSSL::getSerialNumber() const
 	return ser;
 }
 
-// FIX by Elmue: Added support to get details about a certificate
-// returns "C=US,O=VeriSign\, Inc.,OU=Class 1 Public Primary Certification Authority"
-const string X509Certificate_OpenSSL::getIssuer() const
+const string X509Certificate_OpenSSL::getIssuerString() const
 {
 	// Get issuer for this cert
-	BIO *out;
-	unsigned char *issuer;
-
-	out = BIO_new(BIO_s_mem());
+	BIO* out = BIO_new(BIO_s_mem());
 	X509_NAME_print_ex(out, X509_get_issuer_name(m_data->cert), 0, XN_FLAG_RFC2253);
-	int n = BIO_get_mem_data(out, &issuer);
-	
-    vmime::string s_Name((char*)issuer, n);
+
+	unsigned char* issuer;
+	const long n = BIO_get_mem_data(out, &issuer);
+
+	vmime::string name(reinterpret_cast <char*>(issuer), n);
 	BIO_free(out);
 
-    return s_Name;
+	return name;
 }
 
 
@@ -379,8 +376,19 @@ bool X509Certificate_OpenSSL::cnMatch(const char* cnBuf, const char* host)
 	return matches;
 }
 
-// FIX by Elmue: return all the non-matching names
-bool X509Certificate_OpenSSL::verifyHostName(const string& hostname, string& s_NoMatch) const
+
+// Workaround for i2v() taking either a const or a non-const 'method' on some platforms
+STACK_OF(CONF_VALUE)* call_i2v(const X509V3_EXT_METHOD* m, void* p1, STACK_OF(CONF_VALUE)* p2)
+{
+	return m->i2v(m, p1, p2);
+}
+STACK_OF(CONF_VALUE)* call_i2v(X509V3_EXT_METHOD* m, void* p1, STACK_OF(CONF_VALUE)* p2)
+{
+	return m->i2v(m, p1, p2);
+}
+
+bool X509Certificate_OpenSSL::verifyHostName
+(const string& hostname, std::vector <std::string>* nonMatchingNames) const
 {
 	// First, check subject common name against hostname
 	char CNBuffer[1024];
@@ -393,11 +401,12 @@ bool X509Certificate_OpenSSL::verifyHostName(const string& hostname, string& s_N
 		if (cnMatch(CNBuffer, hostname.c_str()))
 			return true;
 
-        s_NoMatch = CNBuffer;
+		if (nonMatchingNames)
+			nonMatchingNames->push_back(CNBuffer);
 	}
 
 	// Now, look in subject alternative names
-	for (int i = 0, extCount = X509_get_ext_count(m_data->cert) ; i < extCount ; ++i)
+	for (int i = 0, extCount = X509_get_ext_count(m_data->cert); i < extCount; ++i)
 	{
 		X509_EXTENSION* ext = X509_get_ext(m_data->cert, i);
 		const char* extStr = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
@@ -424,44 +433,31 @@ bool X509Certificate_OpenSSL::verifyHostName(const string& hostname, string& s_N
 
 				if (extValStr && method->i2v)
 				{
-					STACK_OF(CONF_VALUE)* val = method->i2v(method, extValStr, NULL);
+					STACK_OF(CONF_VALUE)* val = call_i2v(method, extValStr, 0);
 
-					for (int j = 0 ; j < sk_CONF_VALUE_num(val) ; ++j)
+					for (int j = 0; j < sk_CONF_VALUE_num(val); ++j)
 					{
 						CONF_VALUE* cnf = sk_CONF_VALUE_value(val, j);
 
 						if ((strcasecmp(cnf->name, "DNS") == 0 &&
-							 strcasecmp(cnf->value, hostname.c_str()) == 0)
-							 ||
+							cnMatch(cnf->value, hostname.c_str()))
+							||
 							(strncasecmp(cnf->name, "IP", 2) == 0 &&
-							 strcasecmp(cnf->value, hostname.c_str()) == 0))
+							cnMatch(cnf->value, hostname.c_str())))
 						{
 							return true;
 						}
 
-						// FIX for salmon: check for *
-						const char* startWildcard = strstr(cnf->value, "*")+1;
-						if (startWildcard-1)
-						{
-							const char* inOurName = strstr(hostname.c_str(), startWildcard);
-							if (inOurName && !strcmp(inOurName, startWildcard))
-								return true;
-						}
-
-                        if (s_NoMatch.length())
-                            s_NoMatch += ", ";
-
-                        s_NoMatch += cnf->value;
-
-						
+						if (nonMatchingNames)
+							nonMatchingNames->push_back(cnf->value);
 					}
 				}
 			}
 		}
 	}
+
 	return false;
 }
-
 
 const datetime X509Certificate_OpenSSL::convertX509Date(void* time) const
 {

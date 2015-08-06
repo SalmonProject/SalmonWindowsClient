@@ -66,6 +66,21 @@ void defaultCertificateVerifier::verify
 		throw exceptions::unsupported_certificate_type(type);
 }
 
+//void debugDisplayCertInfo(ref <X509Certificate> theCert, string yourMessage)
+//{
+//	string allHex = "0123456789abcdef";
+//	string serialAsHex;
+//	std::vector< vmime::byte_t > serialNumberVector = theCert->getSerialNumber();
+//	for (int i = 0; i < serialNumberVector.size(); i++)
+//	{
+//		serialAsHex += allHex[(serialNumberVector[i] >> 4) & 0x0f];
+//		serialAsHex += allHex[serialNumberVector[i] & 0x0f];
+//	}
+//	
+//	char HMMDEBUGCERT[5000];
+//	sprintf(HMMDEBUGCERT, "%s: \n\nIssuer string: %s \n\n SERIAL: %s", yourMessage.c_str(), theCert->getIssuerString().c_str(), serialAsHex.c_str());
+//	MessageBoxA(NULL, HMMDEBUGCERT, "SDFSDF", MB_OK);
+//}
 
 void defaultCertificateVerifier::verifyX509
 	(ref <certificateChain> chain, const string& hostname)
@@ -99,14 +114,7 @@ void defaultCertificateVerifier::verifyX509
 		ref <X509Certificate> cert =
 			chain->getAt(i).dynamicCast <X509Certificate>();
 
-		const datetime begin = cert->getActivationDate();
-		const datetime end = cert->getExpirationDate();
-
-		if (now < begin || now > end)
-		{
-			throw exceptions::certificate_verification_exception
-				("Validity date check failed.");
-		}
+		cert->checkValidity();
 	}
 
 	// Check whether the certificate can be trusted
@@ -122,15 +130,8 @@ void defaultCertificateVerifier::verifyX509
 	{
 		ref <X509Certificate> rootCa = m_x509RootCAs[i];
 
-		if (lastCert->verify(rootCa))
-        {
+		if (lastCert->verify(rootCa) || lastCert->equals(rootCa))
 			trusted = true;
-
-            // FIX by Elmue: Added Trace output
-            #if VMIME_TRACE
-                TRACE("CERT Server certificate is signed with root certificate: %s", rootCa->getIssuer().c_str());
-            #endif
-        }
 	}
 
 	// -- Next, if the issuer certificate cannot be verified against
@@ -144,14 +145,7 @@ void defaultCertificateVerifier::verifyX509
 		ref <X509Certificate> cert = m_x509TrustedCerts[i];
 
 		if (firstCert->equals(cert))
-        {
 			trusted = true;
-
-            // FIX by Elmue: Added Trace output
-            #if VMIME_TRACE
-                TRACE("CERT Server certificate is trusted by user: %s", cert->getIssuer().c_str());
-            #endif
-        }
 	}
 
 	if (!trusted)
@@ -162,12 +156,14 @@ void defaultCertificateVerifier::verifyX509
 	}
 
 	// Ensure the first certificate's subject name matches server hostname
-    string s_NoMatch;
-	if (!firstCert->verifyHostName(hostname, s_NoMatch))
+    std::vector < string > nonMatchingIdentities;
+	if (!firstCert->verifyHostName(hostname, &nonMatchingIdentities))
 	{
-        // FIX by Elmue: Added info about the certificate
+		string allIdentitiesString;
+		for (int i = 0; i < nonMatchingIdentities.size(); i++)
+			allIdentitiesString += nonMatchingIdentities[i] + "\n";
 		throw exceptions::certificate_verification_exception
-            ("Server identity ("+hostname+") does not match any of the identities in the certificate: "+s_NoMatch);
+			("Server identity (" + hostname + ") does not match any of the identities in the certificate:\n" + allIdentitiesString);
 	}
 }
 

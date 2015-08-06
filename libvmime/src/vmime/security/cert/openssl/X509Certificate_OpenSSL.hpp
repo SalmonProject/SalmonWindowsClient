@@ -61,16 +61,13 @@ public:
 
 	const byteArray getSerialNumber() const;
 
-    // FIX by Elmue: Added support to get details about a certificate
-    // returns "C=US,O=VeriSign\, Inc.,OU=Class 1 Public Primary Certification Authority"
-    const string getIssuer() const;
+	const string getIssuerString() const;
 
     bool checkIssuer(ref <const X509Certificate> issuer) const;
 
 	bool verify(ref <const X509Certificate> caCert) const;
 
-    // FIX by Elmue: return of the non-matching names
-	bool verifyHostName(const string& hostname, string& s_NoMatch) const;
+	bool verifyHostName(const string& hostname, std::vector <std::string>* nonMatchingNames = NULL) const;
 
 	const datetime getExpirationDate() const;
 	const datetime getActivationDate() const;

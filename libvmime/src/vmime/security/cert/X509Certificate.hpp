@@ -108,9 +108,12 @@ public:
 	  * false otherwise
 	  */
 
-    // FIX by Elmue: Added support to get details about a certificate
-    // returns "C=US,O=VeriSign\, Inc.,OU=Class 1 Public Primary Certification Authority"
-    virtual const string getIssuer() const = 0;
+	/** Returns the distinguished name of the issuer of this certificate.
+	* Eg. "C=US,O=VeriSign\, Inc.,OU=Class 1 Public Primary Certification Authority"
+	*
+	* @return distinguished name of the certificate issuer, as a string
+	*/
+	virtual const string getIssuerString() const = 0;
 
 	virtual bool checkIssuer(ref <const X509Certificate> issuer) const = 0;
 
@@ -124,10 +127,10 @@ public:
 	/** Verify certificate's subject name against the given hostname.
 	  *
 	  * @param hostname DNS name of the server
+	  * @param nonMatchingNames identities we could not match
 	  * @return true if the match is successful, false otherwise
 	  */
-	// FIX by Elmue: Added parameter
-	virtual bool verifyHostName(const string& hostname, string& s_NoMatch) const = 0;
+	virtual bool verifyHostName(const string& hostname, std::vector <std::string>* nonMatchingNames) const = 0;
 
 	/** Gets the expiration date of this certificate. This is the date
 	  * at which this certificate will not be valid anymore.
@@ -148,6 +151,9 @@ public:
 	  * @return the fingerprint of this certificate
 	  */
 	virtual const byteArray getFingerprint(const DigestAlgorithm algo) const = 0;
+
+
+	virtual void checkValidity() const;
 };
 
 
