@@ -827,36 +827,41 @@ L"اینترنت شما به نظر می رسد که قطع شده است یا �
 	},
 	//WHY_EMAIL_PASSWORD
 	{
-L"The Salmon client needs your email password to be able to communicate with the directory server over email. \
+L"The Salmon client needs an email password to be able to communicate with the directory server over email. \
 (We use email because the messages - first time registration, asking for a new server, asking for a recommendation \
 code for a friend - are small+infrequent enough to fit in email, and blocking all major email \
 providers would be a very extreme step for a censorship organization to take). \n\n\
-Your password is never sent to the Salmon Project or anywhere else, or written to your computer's hard disk: \
-it is only used to send and receive emails, and only to/from the address cs-backend-salmon@mx.uillinois.edu.\n\n\
+For maximum safety, use a dummy email account created just for use with Salmon. Be sure the account's address isn't \
+something that might identify you, and definitely don't use the same password as on your real email account.\n\n\n\n\
+More details:\n\
+The password is never sent to the Salmon Project or anywhere else, or written to your computer's hard disk: \
+it is only used to send and receive emails, and only to/from the address cs-backend-salmon@mx.uillinois.edu. \
 HOWEVER, it is certainly possible for a program like this to do bad things with your email. We can only promise \
 that we don't. To be sure we don't, you or someone you trust should either examine the \
 source code (https://github.com/SalmonProject/SalmonWindowsClient), \
-or be socially close enough to Salmon Project people to feel safe trusting us. Alternatively, you could make a throwaway \
-email account solely for use with Salmon (be sure the account and password are not at all related to other accounts you use!)\n\n\
+or be socially close enough to Salmon Project people to feel safe trusting us.\n\n\
 MOST IMPORTANTLY, even though the Salmon Project's version of this client does not do anything bad with your password, \
-other organizations could create and distribute a look-alike version that does. PLEASE verify that you have an original \
-copy of the program by following the signature verification instructions included (SignatureHelp.png). ALL AUTHENTIC COPIES OF SALMON should come \
-with a SignatureHelp.png that says the correct Certification Path is: USERTrust -> USERTrust RSA Certification Authority -> InCommon RSA Server CA -> salmon.cs.illinois.edu.",
+someone could create and distribute a look-alike version that does. Please verify that you have an original \
+copy of the program by following the signature verification instructions in SignatureHelp.png. If you can, get the \
+original SignatureHelp.png directly from https://salmon.cs.illinois.edu/SignatureHelp.png",
 
-L"The Salmon client needs your email password to be able to communicate with the directory server over email. \
-(We use email because the messages are small+infrequent enough to fit in email, and blocking all major email \
+L"The Salmon client needs an email password to be able to communicate with the directory server over email. \
+(We use email because the messages - first time registration, asking for a new server, asking for a recommendation \
+code for a friend - are small+infrequent enough to fit in email, and blocking all major email \
 providers would be a very extreme step for a censorship organization to take). \n\n\
-Your password is never sent to the Salmon Project or anywhere else, or written to your computer's hard disk: \
-it is only used to send and receive emails, and only to/from the address cs-backend-salmon@mx.uillinois.edu.\n\n\
+For maximum safety, use a dummy email account created just for use with Salmon. Be sure the account's address isn't \
+something that might identify you, and definitely don't use the same password as on your real email account.\n\n\n\n\
+More details:\n\
+The password is never sent to the Salmon Project or anywhere else, or written to your computer's hard disk: \
+it is only used to send and receive emails, and only to/from the address cs-backend-salmon@mx.uillinois.edu. \
 HOWEVER, it is certainly possible for a program like this to do bad things with your email. We can only promise \
 that we don't. To be sure we don't, you or someone you trust should either examine the \
 source code (https://github.com/SalmonProject/SalmonWindowsClient), \
-or be socially close enough to Salmon Project people to feel safe trusting us. Alternatively, you could make a throwaway \
-email account solely for use with Salmon (be sure the account and password are not at all related to other accounts you use!)\n\n\
+or be socially close enough to Salmon Project people to feel safe trusting us.\n\n\
 MOST IMPORTANTLY, even though the Salmon Project's version of this client does not do anything bad with your password, \
-other organizations could create and distribute a look-alike version that does. PLEASE verify that you have an original \
-copy of the program by following the signature verification instructions included (SignatureHelp.png). ALL AUTHENTIC COPIES OF SALMON should come \
-with a SignatureHelp.png that says the correct Certification Path is: USERTrust -> USERTrust RSA Certification Authority -> InCommon RSA Server CA -> salmon.cs.illinois.edu.",
+someone could create and distribute a look-alike version that does. Please verify that you have an original \
+copy of the program by following the signature verification instructions in SignatureHelp.png. If you can, get the \
+original SignatureHelp.png directly from https://salmon.cs.illinois.edu/SignatureHelp.png",
 
 L"نرم افزار ماهی آزاد به پسورد ایمیل شما نیاز دارد تا بتواند با سرور دایرکتوری تماس بگبرد.\n\
 این برنامه از ایمیل شما پیامی را به سرور دایرکتوری می فرستد و پاسخی دریافت می کند.\n\
@@ -864,6 +869,9 @@ L"نرم افزار ماهی آزاد به پسورد ایمیل شما نیاز
 ثبت نام کردن شما برای بار اول، درخواست سرور جدید، درخواست کد اعتبار برای دوستان.\n\
 دلیلی که ما از ایمیل شما برای این دستورها استفاده می کنیم این است که \n\
 بستن تمام وبسایت هایی که خدمات ایمیل ارایه می دهند برای سانسورچی کار خیلی افراطی است و احتمالا تا این حد جلو نمی روند. \n\
+برای امنیت بیشتر، توصیه می کنیم یک ایمیل جدید بسازید و سعی کنید آدرس ایمیل جوری باشد که به هویت شما ربطی نداشته باشد\n\
+و فقط از این ایمیل برای وصل شدن به نرم افزار مااستفاده کنید. همچنین از پسوردی استفاده نکنید که \n\
+پسورد ایمیل اصلی تان است. با همه ی این ها، توجه کنید که\n\
 پسورد شما هرگز به پروژه ماهی آزاد یا هیچ جای دیگری فرستاده نمی شود یا حتی در هارد دیسک کامپبوترنان نیز ذخیره نمی شود.\n\
 تنها ما برای فرستادن پیام به یک کامپیوتر خاص در آدرس زبر از ایمیل شما استفاده می کنیم \n\
 cs-backend-salmon@mx.uillinois.edu\n\
