@@ -1,6 +1,6 @@
 #ifndef _SALMON_MAIL_CLIENT_VERSION_H
 #define _SALMON_MAIL_CLIENT_VERSION_H
 
-#define SALMON_CLIENT_VERSION_STRING L"Salmon Version: v1.1.0"
+#define SALMON_CLIENT_VERSION_STRING L"Salmon Version: v1.1.1"
 
 #endif
