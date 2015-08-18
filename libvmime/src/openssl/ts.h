@@ -87,9 +87,6 @@
 #  include "dh.h"
 # endif
 
-# include "evp.h"
-
-
 #ifdef  __cplusplus
 extern "C" {
 #endif

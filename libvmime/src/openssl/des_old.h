@@ -93,7 +93,7 @@
 #ifndef HEADER_DES_H
 # define HEADER_DES_H
 
-# include "e_os2.h     /* OPENSSL_EXTERN, OPENSSL_NO_DES, DES_LONG */"
+# include "e_os2.h"     /* OPENSSL_EXTERN, OPENSSL_NO_DES, DES_LONG */
 
 # ifdef OPENSSL_NO_DES
 #  error DES is disabled.
@@ -104,7 +104,7 @@
 # endif
 
 # ifdef _KERBEROS_DES_H
-#  error "des_old.h> replaces <kerberos/des.h.
+#  error "des_old.h> replaces <kerberos/des.h".
 # endif
 
 # include "symhacks.h"
