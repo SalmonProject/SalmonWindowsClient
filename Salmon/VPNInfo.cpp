@@ -23,7 +23,9 @@
 #include <windowsx.h>
 
 #include <vector>
+#include <string>
 using std::vector;
+using std::string;
 
 #include "salmon_constants.h"
 #include "salmon_globals.h"
@@ -34,6 +36,19 @@ using std::vector;
 
 #include "VPNInfo.h"
 
+bool operator<(const VPNInfo& a, const VPNInfo& b)
+{
+	return a.score < b.score;
+}
+
+//the normal sorting doesn't take consecutive failures into account. this is fine, because
+//the connection attempt logic has other mechanisms for not constantly retrying the likely-failed
+//ones. however, for sending the email to an android user, we want all of the topmost entries to
+//be ones that were online last time we checked.
+bool compWithFailure(const VPNInfo& a, const VPNInfo& b)
+{
+	return a.score - 10000 * a.failureCount < b.score - b.failureCount * 10000;
+}
 
 VPNInfo::VPNInfo(const char* theAddr, int theBW, int theRTT, int theScore, int theFC, const char* thePSK)
 {
@@ -65,7 +80,7 @@ VPNInfo::VPNInfo(const char* theAddr, int theBW, int theRTT, int theScore, int t
 
 
 //populate a VPNInfo struct with a new server's info, and add it to the knownServers list
-//returns true if this IP address was already in knownServers
+//returns true if this IP address was already in gKnownServers
 bool addVPNInfo(char* ipAddrBuf, int serverBW, char* serverPSK)
 {
 	//HACK initially, just set the rtt to 50, because pings only (are guaranteed to) get through after we have connected to the server.
@@ -74,23 +89,27 @@ bool addVPNInfo(char* ipAddrBuf, int serverBW, char* serverPSK)
 }
 
 //same as above, but bring-your-own-VPNInfo
-//returns true if this IP address was already in knownServers
+//returns true if this IP address was already in gKnownServers
 bool addVPNInfo(VPNInfo toAdd)
 {
+	WaitForSingleObject(gServerInfoMutex, INFINITE);
+
 	//HACK initially, just set the rtt to 50, because pings only (are guaranteed to) get through after we have connected to the server.
 	toAdd.lastAttempt = 0;
 	toAdd.secondsTilNextAttempt = 2 * 24 * 3600 + rand() % (5 * 24 * 3600);
 
 	//add (or overwrite) the new struct to the knownServers list, update SConfig.txt, and create a "connection setting" in SoftEther for the new server
 	bool newServerOverwrites = false;
-	for (int i = 0; i < knownServers.size(); i++)
-		if (!strcmp(toAdd.addr, knownServers[i].addr))
+	for (int i = 0; i < gKnownServers.size(); i++)
+		if (!strcmp(toAdd.addr, gKnownServers[i].addr))
 		{
-			knownServers[i] = toAdd;
+			gKnownServers[i] = toAdd;
 			newServerOverwrites = true;
 		}
 	if (!newServerOverwrites)
-		knownServers.push_back(toAdd);
+		gKnownServers.push_back(toAdd);
+
+	ReleaseMutex(gServerInfoMutex);
 
 	if (toAdd.vpnGate)
 		createVPNGateConnectionSetting(toAdd);
@@ -100,23 +119,33 @@ bool addVPNInfo(VPNInfo toAdd)
 	return newServerOverwrites;
 }
 
-bool parseNewSalmonServer(char* recvBuffer)
+namespace{
+void asterisksToNewlines(string* toConvert)
 {
-	int wholeReplyLength = strlen(recvBuffer);
-	for (int i = 0; i < wholeReplyLength; i++)
-		if (recvBuffer[i] == '*')
-			recvBuffer[i] = '\n';
-	if (!strchr(recvBuffer, ' ') || !strchr(strchr(recvBuffer, ' ') + 1, ' ') || !strstr(recvBuffer, "-----END CERTIFICATE-----"))
+	for (int i = 0; i < (*toConvert).length(); i++)
+		if ((*toConvert)[i] == '*')
+			(*toConvert)[i] = '\n';
+}
+} //anonymous namespace
+
+//Parses a directory server reply to extract info about new servers, and writes
+//that info into .pem cert files, VPNInfo structs in the global list, and the sconfig file.
+//NOTE: Translates all *s in the string argument to \ns.
+bool parseNewSalmonServer(string recvBuffer)
+{
+	asterisksToNewlines(&recvBuffer);
+	
+	if (!strchr(recvBuffer.c_str(), ' ') || !strchr(strchr(recvBuffer.c_str(), ' ') + 1, ' ') || !strstr(recvBuffer.c_str(), "-----END CERTIFICATE-----"))
 	{
 		MessageBox(NULL, localizeConst(DIRSERV_GAVE_MALFORMED_RESPONSE_TO_LOGIN), localizeConst(ERROR_STR), MB_OK);
 		return false;
 	}
-	int ipAddrLen = (int)(strchr(recvBuffer, ' ') - recvBuffer);
+	int ipAddrLen = (int)(strchr(recvBuffer.c_str(), ' ') - recvBuffer.c_str());
 	char ipAddrBuf[260];
-	memcpy(ipAddrBuf, recvBuffer, ipAddrLen);
+	memcpy(ipAddrBuf, recvBuffer.c_str(), ipAddrLen);
 	ipAddrBuf[ipAddrLen] = 0;
 
-	char* pskStart = strchr(recvBuffer, ' ') + 1;
+	const char* pskStart = strchr(recvBuffer.c_str(), ' ') + 1;
 	int pskLen = (int)(strchr(pskStart, ' ') - pskStart);
 	char serverPSK[10];
 	memcpy(serverPSK, pskStart, pskLen);
@@ -126,7 +155,7 @@ bool parseNewSalmonServer(char* recvBuffer)
 	//ok... i ended up writing this because of a silly mistake (was printing serverBW when i meant to print *serverBW; thought
 	//the text was coming through as garbage), BUT, it's more robust in case there is any weirdness, so might as well keep it
 	char bwTextBuf[100];
-	char* startBW = 1 + strchr(recvBuffer, ' ');
+	const char* startBW = 1 + strchr(recvBuffer.c_str(), ' ');
 	int curDigit = 0;
 	for (; curDigit < 99 && startBW[curDigit] >= '0' && startBW[curDigit] <= '9'; curDigit++)
 		bwTextBuf[curDigit] = startBW[curDigit];
@@ -137,8 +166,8 @@ bool parseNewSalmonServer(char* recvBuffer)
 	//ok, at this point, ip address and bw have been safely stored. now do cert and purges.
 
 	//NOTE: we already converted the *s in the cert back to \ns a few lines earlier.
-	char* certStart = strstr(recvBuffer, "-----BEGIN CERTIFICATE-----");
-	char* certEnd = strchr(strstr(recvBuffer, "-----END CERTIFICATE-----"), '\n');
+	const char* certStart = strstr(recvBuffer.c_str(), "-----BEGIN CERTIFICATE-----");
+	const char* certEnd = strchr(strstr(recvBuffer.c_str(), "-----END CERTIFICATE-----"), '\n');
 	//SoftEther's default .pem certificate appears to be ~1200 bytes, so 2500 should be reasonably future-proof
 	char serverCertBuf[2500];
 	memcpy(serverCertBuf, certStart, (int)(certEnd - certStart));
@@ -231,4 +260,21 @@ bool parseVPNGateItem(const char* curVPNgate, vector<VPNInfo>* VPNGateServers)
 	VPNGateServers->push_back(new_ip);
 
 	return true;
+}
+
+//Makes gKnownServers have: currently connected server (if any) at index 0, the rest sorted by
+//last-successful-connection-attempt first, with ties broken by highest-score-first.
+void sortKnownServers()
+{
+	//first, be sure they're sorted last-connection-attempt-succeeded-first, then best-score-first.
+	std::sort(gKnownServers.begin(), gKnownServers.end(), compWithFailure);
+	//also, if we're currently connected to one, that should be the very first.
+	if (gVPNConnected)
+		for (int i = 0; i < gKnownServers.size(); i++)
+			if (!strcmp(gCurrentConnection.addr, gKnownServers[i].addr))
+			{
+				VPNInfo tempHolder = gKnownServers[0];
+				gKnownServers[0] = gKnownServers[i];
+				gKnownServers[i] = tempHolder;
+			}
 }

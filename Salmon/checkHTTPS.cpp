@@ -25,6 +25,11 @@
 
 #include "salmon_utility.h"
 
+#include <vector>
+using std::vector;
+#include <string>
+using std::string;
+
 class Salmon_timeoutHandler : public vmime::net::timeoutHandler
 {
 	__int64 startTime; //in hnsecs since jan 1, 1601
@@ -78,10 +83,10 @@ public:
 //won't correspond to their domain name or ip address)
 class singleCertVerifier : public vmime::security::cert::defaultCertificateVerifier
 {
-	std::vector <vmime::ref <vmime::security::cert::X509Certificate> > myX509TrustedCerts;
+	vector <vmime::ref <vmime::security::cert::X509Certificate> > myX509TrustedCerts;
 public:
 
-	void setX509TrustedCerts(const std::vector <vmime::ref <vmime::security::cert::X509Certificate> >& trustedCerts)
+	void setX509TrustedCerts(const vector <vmime::ref <vmime::security::cert::X509Certificate> >& trustedCerts)
 	{
 		myX509TrustedCerts = trustedCerts;
 	}
@@ -114,7 +119,7 @@ public:
 	}
 };
 
-bool checkSoftEtherHTTPS(const std::string& serverIP_Addr)
+bool checkSoftEtherHTTPS(const string& serverIP_Addr)
 {
 	//i wish vmime would just use polarssl... but i'm not going to compile two separate libraries in.
 	//and now i have spent the time to figure out how to use vmime's tls wrapper thing, anyways.
@@ -134,7 +139,7 @@ bool checkSoftEtherHTTPS(const std::string& serverIP_Addr)
 	fclose(readCert);
 
 	vmime::ref <vmime::security::cert::X509Certificate> curServCert = vmime::security::cert::X509Certificate::import((const vmime::byte_t*)certData, certLen);
-	std::vector < vmime::ref<vmime::security::cert::X509Certificate> > certSingleton;
+	vector < vmime::ref<vmime::security::cert::X509Certificate> > certSingleton;
 	certSingleton.push_back(curServCert);
 	vmime::ref < singleCertVerifier > theVerifier = vmime::create <  singleCertVerifier >();
 	theVerifier->setX509TrustedCerts(certSingleton);
@@ -201,7 +206,7 @@ class PersistentGoogleCerts
 {
 protected:
 #include "certs_google.inc"
-	std::vector < vmime::ref<vmime::security::cert::X509Certificate> > certs;
+	vector < vmime::ref<vmime::security::cert::X509Certificate> > certs;
 
 	PersistentGoogleCerts()
 	{
@@ -209,9 +214,9 @@ protected:
 		certs.push_back(vmime::security::cert::X509Certificate::import((const vmime::byte_t*)GOOGLE_ALT_EQUIFAX_ROOT_CERT, strlen(GOOGLE_ALT_EQUIFAX_ROOT_CERT)));
 	}
 
-	friend const std::vector < vmime::ref<vmime::security::cert::X509Certificate> >& googleCerts();
+	friend const vector < vmime::ref<vmime::security::cert::X509Certificate> >& googleCerts();
 };
-const std::vector < vmime::ref<vmime::security::cert::X509Certificate> >& googleCerts()
+const vector < vmime::ref<vmime::security::cert::X509Certificate> >& googleCerts()
 {
 	static PersistentGoogleCerts* persistentCerts = new PersistentGoogleCerts();
 	return persistentCerts->certs;
@@ -219,7 +224,7 @@ const std::vector < vmime::ref<vmime::security::cert::X509Certificate> >& google
 
 bool checkGoogleHTTPS()
 {
-	const std::string GOOGLE_DOMAIN = "www.google.com";
+	const string GOOGLE_DOMAIN = "www.google.com";
 
 	vmime::ref < vmime::security::cert::defaultCertificateVerifier > defVer =
 		vmime::create <  vmime::security::cert::defaultCertificateVerifier >();
@@ -279,7 +284,7 @@ class PersistentMicrosoftCerts
 {
 protected:
 #include "certs_microsoft.inc"
-	std::vector < vmime::ref<vmime::security::cert::X509Certificate> > certs;
+	vector < vmime::ref<vmime::security::cert::X509Certificate> > certs;
 
 	PersistentMicrosoftCerts()
 	{
@@ -288,9 +293,9 @@ protected:
 		certs.push_back(vmime::security::cert::X509Certificate::import((const vmime::byte_t*)VERISIGN_BUNDLE2, strlen(VERISIGN_BUNDLE2)));
 	}
 
-	friend const std::vector < vmime::ref<vmime::security::cert::X509Certificate> >& microsoftCerts();
+	friend const vector < vmime::ref<vmime::security::cert::X509Certificate> >& microsoftCerts();
 };
-const std::vector < vmime::ref<vmime::security::cert::X509Certificate> >& microsoftCerts()
+const vector < vmime::ref<vmime::security::cert::X509Certificate> >& microsoftCerts()
 {
 	static PersistentMicrosoftCerts* persistentCerts = new PersistentMicrosoftCerts();
 	return persistentCerts->certs;
@@ -298,7 +303,7 @@ const std::vector < vmime::ref<vmime::security::cert::X509Certificate> >& micros
 
 bool checkMicrosoftUpdateHTTPS()
 {
-	const std::string MICROSOFT_UPDATE_DOMAIN = "www.microsoft.com";
+	const string MICROSOFT_UPDATE_DOMAIN = "www.microsoft.com";
 
 	vmime::ref < vmime::security::cert::defaultCertificateVerifier > defVer =
 		vmime::create <  vmime::security::cert::defaultCertificateVerifier >();

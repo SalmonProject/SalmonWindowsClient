@@ -111,12 +111,22 @@ enum LocalizedString
 	CANT_SEND_EMAIL_WHILE_CONNECTED = 73,
 	GAVE_UP_DUE_TO_CONNECTIVITY_PROBLEMS = 74,
 	WHY_EMAIL_PASSWORD = 75,
-	ISNT_THIS_UNSAFE_BUTTON = 76
+	ISNT_THIS_UNSAFE_BUTTON = 76,
+	SALMON_CANT_EMAIL_Q = 77,
+	MANUAL_EMAIL_TOGGLE_CAPTION = 78,
+	ENTER_ANY_EMAIL_ADDRESS = 79,
+	ENTER_ANY_EMAIL_ADDRESS_VERBOSE = 80,
+	COPY_THIS_BODY = 81,
+	COPY_THIS_SUBJECT = 82,
+	OPEN_RECEIVED_ATTACHMENT = 83,
+	USE_THIS_BUTTON_TO_SELECT_ATTACHMENT = 84,
+	COPY_THIS_ADDRESS_TO_SEND = 85,
+	FILE_DOES_NOT_EXIST = 86
 };
 
 
-void localizeDirServMsgBox(const char* asciiStr, LPTSTR boxTitle);
-const LPTSTR localizeConst(LocalizedString theStrEnumMember);
+void localizeDirServMsgBox(const char* asciiStr, const WCHAR* boxTitle);
+const WCHAR* localizeConst(LocalizedString theStrEnumMember);
 bool checkIfSuccessfulStartReg(const char* asciiStr);
 void setAllText();
 

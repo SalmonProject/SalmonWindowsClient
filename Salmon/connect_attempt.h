@@ -21,6 +21,8 @@
 #include <string>
 #include <set>
 
+#include "VPNInfo.h"
+
 class ConnectAnyVPNAttemptResult
 {
 public:
@@ -33,5 +35,13 @@ public:
 		connectedSuccessfully = false;
 	}
 };
+
+enum NeedServerSuccess
+{
+	NEED_SERVER_GOT_NONE = 0,
+	NEED_SERVER_GOT_SALMON = 1,
+	NEED_SERVER_GOT_VPNGATE = 2
+};
+NeedServerSuccess needServer(const ConnectAnyVPNAttemptResult& res, std::vector<VPNInfo>* VPNGateServers);
 
 #endif //_SALMON_INCL_GUARD_CONNECTATTEMPT_H_

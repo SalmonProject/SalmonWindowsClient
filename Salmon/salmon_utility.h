@@ -36,4 +36,7 @@ void deriveUsername(char* pwToUse, const char* theBaseVPNPassword, const char* s
 
 void writeMobileconfigToFile(const WCHAR* fname, const WCHAR* ipAddr, const WCHAR* psk, const WCHAR* vpnName, const WCHAR* vpnPW);
 
+void disableAllButtonsAll();
+void enableAllButtonsAll();
+
 #endif

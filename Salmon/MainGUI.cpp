@@ -49,12 +49,9 @@ void createWindowsLogin(LPCWSTR className, HINSTANCE thisInstance);
 void createWindowsRec(LPCWSTR className, HINSTANCE thisInstance);
 void createWindowsLocale(LPCWSTR className, HINSTANCE thisInstance);
 void createWindowsWaiting(LPCWSTR className, HINSTANCE thisInstance);
+void createWindowsManualEmail(LPCWSTR className, HINSTANCE thisInstance);
 
-int WINAPI WinMain(HINSTANCE hThisInstance,
-                    HINSTANCE hPrevInstance,
-                    LPSTR lpszArgument,
-                    int windowStyle)
-
+void initSalmonClient()
 {
 	gServerInfoMutex = CreateMutex(NULL, FALSE, NULL);
 
@@ -65,13 +62,13 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 	load_vpncmdexe_Path();
 
 	//See if softether already has a connection, so that we can show a disconnect button rather than connect.
-	//ALSO, this will create the "VPN Client" interface if it doesn't exist. So, it should definitely come
+	//ALSO, this will create the "VPN Client" network interface if it doesn't exist. So, it should definitely come
 	//before anything else that touches SoftEther.
 	//Also, if there was already a connection, we assume gUserWantsConnection, until they explicitly click Disconnect.
 	gUserWantsConnection = gVPNConnected = checkConnection();
-	//if we start off connected, the Disconnect button must be available. To call softether's accountdisconnect,
-	//we need to know which connection setting we're trying to disconnect (there is no disconnect all option).
-	//so, every time you connect, save the IP addr to a config file, so that we can read it here in case we start up connected.
+	//if we start off connected, the Disconnect button must be available. To call softether's accountdisconnect, we need 
+	//to know which connection setting we're trying to disconnect (softether provides no way to just disconnect all/current).
+	//So, every time you connect, save the IP addr to a config file, so that we can read it here in case we start up connected.
 	if (gVPNConnected)
 		loadCurrentVPN_Addr();
 
@@ -79,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 	//begin the connection monitor thread. does nothing while we aren't connected, monitors connection when we are connected,
 	//and tries to reconnect (as if they had clicked on the connect button again) if it detects the connection is down.
 	CreateThread(NULL, 0, monitorConnection, NULL, 0, NULL);
-	
+
 	//get language setting, if one was already selected from a previous run
 	gChosenLanguage = loadLanguageFromConfig();
 
@@ -91,9 +88,18 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 		NULL,              // default security attributes
 		FALSE,             // initially not owned
 		NULL);             // unnamed mutex
+}
+
+void updateGUIWithManualEmailStatus(bool theStatus);
+
+int WINAPI WinMain(HINSTANCE hThisInstance,
+                    HINSTANCE hPrevInstance,
+                    LPSTR lpszArgument,
+                    int windowStyle)
+{
+	initSalmonClient();
 
 	WNDCLASSEX wincl;
-
 	INITCOMMONCONTROLSEX icc;
 
 	// Initialise common controls.
@@ -106,12 +112,12 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 	wincl.lpszClassName = _win32_WindowClass;
 	wincl.lpfnWndProc = WindowProcedure;      // This function is called by windows 
 	wincl.style = CS_DBLCLKS;                 // Catch double-clicks 
-	wincl.cbSize = sizeof (WNDCLASSEX);
+	wincl.cbSize = sizeof(WNDCLASSEX);
 
 	// Use default icon and mouse-pointer 
-	wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-	wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
-	wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+	wincl.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wincl.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+	wincl.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wincl.lpszMenuName = NULL;                 // No menu 
 	wincl.cbClsExtra = 0;                      // No extra bytes after the window class 
 	wincl.cbWndExtra = 0;                      // structure or the window instance 
@@ -122,13 +128,14 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 	wincl.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
 
 	// Register the window class, and if it fails quit the program 
-	if (!RegisterClassEx (&wincl))
+	if (!RegisterClassEx(&wincl))
 		return 0;
 
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof(ncm);
 	SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
-	gFontHandle = CreateFontIndirect(&ncm.lfMessageFont);
+	gFontHandle = CreateFontIndirect(&(ncm.lfMessageFont));
+
 
 	//CreateWindow() calls for buttons, text boxes, etc. are in the various createWindows____.cpp files.
 	createWindowsSocial(_win32_WindowClass, hThisInstance);
@@ -137,6 +144,12 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
 	createWindowsRec(_win32_WindowClass, hThisInstance);
 	createWindowsLocale(_win32_WindowClass, hThisInstance);
 	createWindowsWaiting(_win32_WindowClass, hThisInstance);
+	createWindowsManualEmail(_win32_WindowClass, hThisInstance);
+	setAllText(); //ensure currently chosen language is displayed
+
+	//Remember whether the user was previously doing manual emailing.
+	gManualEmail.enabled = recallManualEmailStatus();
+	updateGUIWithManualEmailStatus(gManualEmail.enabled);
 
 	trustLevelDisplayAndWriteFile(readTrustFromFile());
 
@@ -203,6 +216,7 @@ void winProcLocale(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void winProcSocial(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void winProcMain(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam);
 void winProcRecd(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam);
+void winProcManualEmail(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam);
 //This function is called by the Windows function DispatchMessage()
 LRESULT CALLBACK WindowProcedure (HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -229,9 +243,11 @@ LRESULT CALLBACK WindowProcedure (HWND theHwnd, UINT message, WPARAM wParam, LPA
 			winProcRecd(theHwnd, message, wParam, lParam);
 		else if (activeWindow == wndwWaiting)
 			winProcWaiting(theHwnd, message, wParam, lParam);
+		else if (activeWindow == wndwManualEmail)
+			winProcManualEmail(theHwnd, message, wParam, lParam);
 	}
 	else if(message==WM_DESTROY)
-		PostQuitMessage (0);       //send a WM_QUIT to the message queue
+		PostQuitMessage (0);  //send a WM_QUIT to the message queue
 	else
 		return DefWindowProc(theHwnd, message, wParam, lParam);
 	return 0;

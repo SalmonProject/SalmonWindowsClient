@@ -19,6 +19,7 @@
 #define _SALMON_INCL_GUARD_VPNINFO_H_
 
 #include <vector>
+#include <string>
 
 class VPNInfo
 {
@@ -41,6 +42,9 @@ private:
 	VPNInfo() {}
 };
 
+bool operator<(const VPNInfo& a, const VPNInfo& b);
+bool compWithFailure(const VPNInfo& a, const VPNInfo& b);
+
 //populate a VPNInfo struct with a new server's info, and add it to the knownServers list
 //returns true if this IP address was already in knownServers
 bool addVPNInfo(char* ipAddrBuf, int serverBW, char* serverPSK);
@@ -48,8 +52,11 @@ bool addVPNInfo(char* ipAddrBuf, int serverBW, char* serverPSK);
 //returns true if this IP address was already in knownServers
 bool addVPNInfo(VPNInfo toAdd);
 
-bool parseNewSalmonServer(char* recvBuffer);
+bool parseNewSalmonServer(std::string recvBuffer);
 bool parseVPNGateItem(const char* curVPNgate, std::vector<VPNInfo>* VPNGateServers);
 
+//Makes gKnownServers have: currently connected server (if any) at index 0, the rest sorted by
+//last-successful-connection-attempt first, with ties broken by highest-score-first.
+void sortKnownServers();
 
 #endif //_SALMON_INCL_GUARD_VPNINFO_H_

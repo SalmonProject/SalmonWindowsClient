@@ -38,4 +38,4 @@ DWORD WINAPI monitorConnection(LPVOID lpParam);
 extern HANDLE gConnectionStateMutex;
 extern bool gUserWantsConnection;
 
-#endif
+#endif //_SALMON_INCLGUARD_CONTROL_SOFTETHER_H_

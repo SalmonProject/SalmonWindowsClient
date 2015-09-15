@@ -38,6 +38,8 @@ extern HWND textLoginEmailAddr;
 extern HWND textLoginEmailPW;//NOTE should be ES_PASSWORD
 //extern HWND chckRemember;
 extern HWND bttnLogin;
+extern HWND framCantEmailFrame;
+extern HWND chekManualEmail;
 
 
 //register with facebook/renren window
@@ -85,6 +87,18 @@ extern HWND bttnWipeConfig;
 extern HWND sttcVersion;
 
 
+//manual email window
+extern HWND wndwManualEmail;
+extern HWND sttcManualEmailTo;
+extern HWND textManualEmailTo;
+extern HWND sttcManualEmailSubject;
+extern HWND textManualEmailSubject;
+extern HWND sttcManualEmailBody;
+extern HWND textManualEmailBody;
+extern HWND sttcManualFindFileDescription;
+extern HWND bttnManualEmailFindRecvd;
+
+
 //waiting for directory server to respond
 extern HWND wndwWaiting;
 extern HWND sttcWaiting;
@@ -93,4 +107,4 @@ extern HWND bttnCancelWaiting;
 extern HFONT gFontHandle;
 
 
-#endif
+#endif //_SALMON_CLIENT_INCLGUARD_HWNDS_

@@ -120,7 +120,7 @@ bool lineIsJustWhitespace(const char* theLine)
 	const char* cur = theLine;
 	while (*cur)
 	{
-		if (!isspace(*cur))
+		if (!isspace(*cur) && *cur != '\r')
 			return false;
 		cur++;
 	}
@@ -331,4 +331,40 @@ L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 </plist>" << std::endl;
 
 	writeFile.close();
+}
+
+void updateAllWindows()
+{
+	UpdateWindow(wndwLogin);
+	UpdateWindow(wndwMain);
+	UpdateWindow(wndwRegisterSocial);
+	UpdateWindow(wndwRegisterRecd);
+}
+
+void disableAllButtonsLogin();
+void disableAllButtonsMain();
+void disableAllButtonsRecReg();
+void disableAllButtonsSocReg();
+void disableAllButtonsAll()
+{
+	disableAllButtonsLogin();
+	disableAllButtonsMain();
+	disableAllButtonsRecReg();
+	disableAllButtonsSocReg();
+
+	updateAllWindows();
+}
+
+void enableAllButtonsLogin();
+void enableAllButtonsMain();
+void enableAllButtonsRecReg();
+void enableAllButtonsSocReg();
+void enableAllButtonsAll()
+{
+	enableAllButtonsLogin();
+	enableAllButtonsMain();
+	enableAllButtonsRecReg();
+	enableAllButtonsSocReg();
+
+	updateAllWindows();
 }

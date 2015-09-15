@@ -95,6 +95,15 @@
     <ClCompile Include="VPNInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="emailReplyCallbacks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createWindowsManualEmail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="manual_or_blocking_email.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -159,6 +168,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="version.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="emailReplyCallbacks.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="manual_or_blocking_email.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

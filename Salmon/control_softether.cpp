@@ -52,9 +52,9 @@ typedef UINT32 uint32_t;
 
 extern "C" BOOL popenCheckExe(const char* cmdToExec);
 
-//NOTE: yes, this is always the Program Files (NOT x86) directory. softether installs to Program Files (NOT x86) on a 64 bit machine.
-//microsoft doesn't want a 32 bit program seeing the "real" Program Files directory on a 64-bit machine, since it would mess with
-//the emulation layer that the 32-on-64 thing works on. that doesn't apply to us, though; we're just trying to find vpncmd.exe to system("") it.
+//NOTE: yes, this is always the Program Files (NOT x86) directory. Softether installs to Program Files (NOT x86) on a 64 bit machine.
+//Microsoft doesn't want a 32 bit program seeing the "real" Program Files directory on a 64-bit machine, since it would mess with
+//the emulation layer that the 32-on-64 thing works on. That doesn't apply to us, though; we're just trying to find vpncmd.exe to system("") it.
 void load_vpncmdexe_Path()
 {
 	WCHAR vpncmdPathW[VPNCMD_PATH_BUFSIZE];
@@ -123,34 +123,25 @@ void load_vpncmdexe_Path()
 	ExitProcess(0);
 }
 
-//returns true if we have a good connection to a VPN server, where good is defined as "they have
+//Returns true if we have a good connection to a VPN server, where good is defined as "they have
 //given us a default gateway (and so presumably also an IP address)." If the server has no access
 //to the rest of the internet (say because they chose to use SecureNAT, and SecureNAT is asking
 //Comcast to give it a second IP address), this would still return true.
 //
 //oh also: so that we don't have to worry about whether the NIC exists: if a "VPN Client" adapter 
-//isn't present, it calls NICcreate. calling this at program start ensures the NIC will be there.
+//isn't present, this function calls NICcreate - calling this at program start ensures the NIC will be there.
 bool checkConnection()
 {
 	bool foundVPN = false;
 	bool connected = false;
 
 	//example taken from http://msdn.microsoft.com/en-us/library/windows/desktop/aa365917(v=vs.85).aspx
-
-	// It is possible for an adapter to have multiple
-	// IPv4 addresses, gateways, and secondary WINS servers
-	// assigned to the adapter. 
-	//
-	// Note that this sample code only prints out the 
-	// first entry for the IP address/mask, and gateway, and
-	// the primary and secondary WINS server for each adapter. 
-
 	PIP_ADAPTER_INFO pAdapterInfo;
 	PIP_ADAPTER_INFO pAdapter = NULL;
 	DWORD dwRetVal = 0;
 
 	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
-	pAdapterInfo = (IP_ADAPTER_INFO *)HeapAlloc(GetProcessHeap(), 0, sizeof(IP_ADAPTER_INFO));
+	pAdapterInfo = (IP_ADAPTER_INFO*)HeapAlloc(GetProcessHeap(), 0, sizeof(IP_ADAPTER_INFO));
 	if (pAdapterInfo == NULL) 
 	{
 		MessageBoxA(NULL, "Error allocating memory needed to call GetAdaptersinfo", "Fatal Error", MB_OK);
@@ -161,7 +152,7 @@ bool checkConnection()
 	if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) 
 	{
 		HeapFree(GetProcessHeap(), 0, pAdapterInfo);
-		pAdapterInfo = (IP_ADAPTER_INFO *)HeapAlloc(GetProcessHeap(), 0, ulOutBufLen);
+		pAdapterInfo = (IP_ADAPTER_INFO*)HeapAlloc(GetProcessHeap(), 0, ulOutBufLen);
 		if (pAdapterInfo == NULL)
 		{
 			MessageBoxA(NULL, "Error allocating memory needed to call GetAdaptersinfo", "Fatal Error", MB_OK);
@@ -169,22 +160,16 @@ bool checkConnection()
 		}
 	}
 
-	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR) 
+	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR)
 	{
-		pAdapter = pAdapterInfo;
-		while (pAdapter) 
-		{
+		for (pAdapter = pAdapterInfo; pAdapter; pAdapter = pAdapter->Next)
 			if (strstr(pAdapter->Description, "VPN Client"))
 			{
-				//MessageBoxA(NULL, pAdapter->GatewayList.IpAddress.String, "sdfasd", MB_OK);
 				foundVPN = true;
 				if (!strstr(pAdapter->GatewayList.IpAddress.String, "0.0.0.0"))//0.0.0.0 being the default for unconnected
 					connected = true;
 				break;
 			}
-
-			pAdapter = pAdapter->Next;
-		}
 	}
 	else 
 	{
@@ -201,9 +186,7 @@ bool checkConnection()
 		sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:niccreate VPN", g_vpncmdPath);
 		systemNice(toExec);
 	}
-
 	return connected;
-
 }
 
 //Once we have connected to a VPN server, we can measure our RTT to it. The iptables masquerade
@@ -211,7 +194,6 @@ bool checkConnection()
 //This function returns RTT in ms, and returns 99999999 if you actually aren't connected after all.
 int measureCurServerRTT()
 {
-	bool foundVPN = false;
 	int rttValue = 99999999;
 
 	//example taken from http://msdn.microsoft.com/en-us/library/windows/desktop/aa365917(v=vs.85).aspx
@@ -241,73 +223,67 @@ int measureCurServerRTT()
 		}
 	}
 
-	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR)
-	{
-		pAdapter = pAdapterInfo;
-		while (pAdapter)
-		{
-			if (strstr(pAdapter->Description, "VPN Client"))
-			{
-				foundVPN = true;
-				if (!strstr(pAdapter->GatewayList.IpAddress.String, "0.0.0.0"))//TODO check if valid IP addr
-				{
-
-					uint32_t ipaddr = inet_addr(pAdapter->GatewayList.IpAddress.String);
-					DWORD numPingResults = 0;
-					char SendData[32] = "Data Buffer";
-					LPVOID ReplyBuffer = NULL;
-					DWORD ReplySize = 0;
-
-					HANDLE hIcmpFile = IcmpCreateFile();
-					if (hIcmpFile == INVALID_HANDLE_VALUE) 
-					{
-						MessageBoxA(NULL, "Unable to IcmpCreatefile.", "Fatal Error", MB_OK);
-						break;
-					}
-
-					ReplySize = sizeof(ICMP_ECHO_REPLY) + sizeof(SendData);
-					ReplyBuffer = (VOID*)malloc(ReplySize);
-					if (ReplyBuffer == NULL) 
-					{
-						MessageBoxA(NULL, "Error allocating memory needed to call IcmpSendEcho", "Fatal Error", MB_OK);
-						IcmpCloseHandle(hIcmpFile);
-						break;
-					}
-
-
-					numPingResults = IcmpSendEcho(hIcmpFile, ipaddr, SendData, sizeof(SendData), NULL, ReplyBuffer, ReplySize, 1000);
-					if (numPingResults > 0)
-					{
-						PICMP_ECHO_REPLY pEchoReply = (PICMP_ECHO_REPLY)ReplyBuffer;
-						if (pEchoReply->Status == IP_SUCCESS)
-							rttValue = pEchoReply->RoundTripTime;
-					}
-					free(ReplyBuffer);
-					IcmpCloseHandle(hIcmpFile);
-				}
-				break;
-			}
-			pAdapter = pAdapter->Next;
-		}
-	}
-	else
+	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) != NO_ERROR)
 	{
 		char errorStr[100];
 		sprintf(errorStr, "GetAdaptersInfo failed with error: %d\n", dwRetVal);
 		MessageBoxA(NULL, errorStr, "Fatal Error", MB_OK);
+		if (pAdapterInfo)
+			HeapFree(GetProcessHeap(), 0, pAdapterInfo);
+		return rttValue;
 	}
+
+	//Adapter info has been correctly gotten; now let's search it for the "VPN Client"
+	//interface, and ping that one.
+	for (pAdapter = pAdapterInfo; pAdapter; pAdapter = pAdapter->Next)
+		if (strstr(pAdapter->Description, "VPN Client") && !strstr(pAdapter->GatewayList.IpAddress.String, "0.0.0.0"))
+		{													//TODO check if valid IP addr beyond just "not 0.0.0.0"
+			uint32_t ipaddr = inet_addr(pAdapter->GatewayList.IpAddress.String);
+			DWORD numPingResults = 0;
+			char SendData[32] = "Data Buffer";
+			LPVOID ReplyBuffer = NULL;
+			DWORD ReplySize = 0;
+
+			HANDLE hIcmpFile = IcmpCreateFile();
+			if (hIcmpFile == INVALID_HANDLE_VALUE) 
+			{
+				MessageBoxA(NULL, "Unable to IcmpCreatefile.", "Fatal Error", MB_OK);
+				break;
+			}
+
+			ReplySize = sizeof(ICMP_ECHO_REPLY) + sizeof(SendData);
+			ReplyBuffer = (VOID*)malloc(ReplySize);
+			if (ReplyBuffer == NULL) 
+			{
+				MessageBoxA(NULL, "Error allocating memory needed to call IcmpSendEcho", "Fatal Error", MB_OK);
+				IcmpCloseHandle(hIcmpFile);
+				break;
+			}
+
+			numPingResults = IcmpSendEcho(hIcmpFile, ipaddr, SendData, sizeof(SendData), NULL, ReplyBuffer, ReplySize, 1000);
+			if (numPingResults > 0)
+			{
+				PICMP_ECHO_REPLY pEchoReply = (PICMP_ECHO_REPLY)ReplyBuffer;
+				if (pEchoReply->Status == IP_SUCCESS)
+					rttValue = pEchoReply->RoundTripTime;
+			}
+			free(ReplyBuffer);
+			IcmpCloseHandle(hIcmpFile);
+		}
+	
 	if (pAdapterInfo)
 		HeapFree(GetProcessHeap(), 0, pAdapterInfo);
-
 	return rttValue;
 }
+
+//Measures and writes the RTT of the current connection into gCurrentConnection.rtt
 DWORD WINAPI measureCurRTT_Thread(LPVOID dummyArg)
 {
 	int theI = 0;
-	for (theI = 0; theI < knownServers.size(); theI++)
-		if (!strcmp(gCurrentConnection.addr, knownServers[theI].addr))
+	for (theI = 0; theI < gKnownServers.size(); theI++)
+		if (!strcmp(gCurrentConnection.addr, gKnownServers[theI].addr))
 			break;
-	if (theI == knownServers.size())
+	if (theI == gKnownServers.size())
 		return 0;
 
 	FILE* writeCurAddr = openConfigFile("previousaddr.txt", "wt");
@@ -316,8 +292,8 @@ DWORD WINAPI measureCurRTT_Thread(LPVOID dummyArg)
 
 	int theRTT = measureCurServerRTT();
 	WaitForSingleObject(gServerInfoMutex, INFINITE);
-	gCurrentConnection.rtt = knownServers[theI].rtt = theRTT;
-	gCurrentConnection.score = knownServers[theI].score = knownServers[theI].bandwidth - knownServers[theI].rtt;
+	gCurrentConnection.rtt = gKnownServers[theI].rtt = theRTT;
+	gCurrentConnection.score = gKnownServers[theI].score = gKnownServers[theI].bandwidth - gKnownServers[theI].rtt;
 	ReleaseMutex(gServerInfoMutex);
 	writeSConfigFromKnownServers();
 	return 0;
@@ -325,7 +301,7 @@ DWORD WINAPI measureCurRTT_Thread(LPVOID dummyArg)
 
 extern "C" size_t popenOneShotR(const char* cmdToExec, char* buf, size_t bufSize);
 
-//returns a malloc()'d pointer to a buffer with the output of accountget consetting
+//Returns a malloc()'d pointer to a buffer with the output of accountget consetting
 char* accountGet(const char* conSetting)
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
@@ -417,8 +393,6 @@ void createConnectionSetting(const char* serverIP_Addr)
 }
 
 
-
-
 //creates the SoftEther "connection setting" for the specified VPN Gate IP address. 
 //This version makes the appropriate changes for VPN Gate: port not fixed to 443, uses VPNGATE hub, uses anonymous login (user vpn, no password)
 //Requires that the right certificate file is at %APPDATA%\salmon\serverip.pem
@@ -478,11 +452,8 @@ void createVPNGateConnectionSetting(const VPNInfo& theServerInfo)
 
 
 
-
-
-
 enum HTTPSResult { HTTPSResult_Failed = 0, HTTPSResult_Succeeded = 1, HTTPSResult_Unfinished = 2 };
-bool checkSoftEtherHTTPS(const std::string& serverIP_Addr);
+bool checkSoftEtherHTTPS(const string& serverIP_Addr);
 class HTTPSArgPasser
 {
 public:
@@ -625,16 +596,17 @@ void deleteConnectionSettings()
 {
 	char toExec[EXEC_VPNCMD_BUFSIZE];
 
-	for (int i = 0; i < knownServers.size(); i++)
+	for (int i = 0; i < gKnownServers.size(); i++)
 	{
-		sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdelete %s", g_vpncmdPath, knownServers[i].addr);
+		sprintf(toExec, "\"%s\" localhost /client /hub:vpn /cmd:accountdelete %s", g_vpncmdPath, gKnownServers[i].addr);
 		systemNice(toExec);
 	}
 }
 
 
-extern bool cancelConnectionAttempt;
-//as long as we think we should be connected (gVPNConnected == true), check softether once per 5 seconds to be sure we are.
+//As long as we think we should be connected (gVPNConnected == true), check softether once per 5 seconds to be sure we are.
+//If it turns out the connection was lost but the user wants to be connected (gUserWantsConnection), do a connection attempt.
+//(Just like as if the user clicked the connect button.)
 DWORD WINAPI monitorConnection(LPVOID lpParam)
 {
 	while (1)
@@ -654,14 +626,13 @@ DWORD WINAPI monitorConnection(LPVOID lpParam)
 
 				Static_SetText(sttcConnectStatus, localizeConst(VPN_STATUS_CONNECTING));
 
-				cancelConnectionAttempt = false;
+				gCancelConnectionAttempt = false;
 				ReleaseMutex(gConnectionStateMutex); //because the thread is going to need it
 				CreateThread(NULL, 0, connectionAttemptThread, NULL, 0, NULL);
 			}
 			else
 				ReleaseMutex(gConnectionStateMutex);
 		}
-
 		Sleep(5000);
 	}
 }

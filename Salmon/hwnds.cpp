@@ -38,6 +38,8 @@ HWND bttnIsntThisUnsafeMain;
 HWND textLoginEmailAddr;
 HWND textLoginEmailPW;//NOTE should be asterisks
 HWND bttnLogin;
+HWND framCantEmailFrame;
+HWND chekManualEmail;
 
 //register with facebook/renren window
 HWND wndwRegisterSocial;
@@ -82,6 +84,17 @@ HWND bttnAndroidGetter;
 HWND bttniOSGetter;
 HWND bttnWipeConfig;
 HWND sttcVersion;
+
+//manual email window
+HWND wndwManualEmail;
+HWND sttcManualEmailTo;
+HWND textManualEmailTo;
+HWND sttcManualEmailSubject;
+HWND textManualEmailSubject;
+HWND sttcManualEmailBody;
+HWND textManualEmailBody;
+HWND sttcManualFindFileDescription;
+HWND bttnManualEmailFindRecvd;
 
 //waiting for directory server to respond
 HWND wndwWaiting;

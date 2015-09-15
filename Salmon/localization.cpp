@@ -31,7 +31,7 @@
 
 const int NUM_DIR_SERVER_MESSAGES = 22;
 const int NUM_LANGUAGES_SUPPORTED = 3;
-const LPTSTR dirMsgStrings[NUM_DIR_SERVER_MESSAGES][NUM_LANGUAGES_SUPPORTED] =
+const WCHAR* dirMsgStrings[NUM_DIR_SERVER_MESSAGES][NUM_LANGUAGES_SUPPORTED] =
 {
 	//pop-up message boxes that come from the directory server
 	//$0
@@ -196,7 +196,7 @@ bool checkIfSuccessfulStartReg(const char* asciiStr)
 	return (strncmp(asciiStr, "$5", 2) == 0);
 }
 
-void localizeDirServMsgBox(const char* asciiStr, LPTSTR boxTitle)
+void localizeDirServMsgBox(const char* asciiStr, const WCHAR* boxTitle)
 {
 	//special handling for message 9, which has to contain a rec code from the dir.
 	//NOTE this one has a special format: $9$thecode
@@ -257,7 +257,7 @@ void localizeDirServMsgBox(const char* asciiStr, LPTSTR boxTitle)
 }
 
 
-const LPTSTR allStrings[77][NUM_LANGUAGES_SUPPORTED] =
+const WCHAR* allStrings[87][NUM_LANGUAGES_SUPPORTED] =
 {
 	//pop-up message boxes
 	//COULDNT_READ_CONFIG_FILE
@@ -894,11 +894,71 @@ USERTrust -> USERTrust RSA Certification Authority -> InCommon RSA Server CA -> 
 L"(Isn't this unsafe?!)",
 L"(Isn't this unsafe?!)", //NOTE: this is in a fairly narrow button... if translating, check that it's still visible.
 L"درباره امنیت"
+	},
+	//SALMON_CANT_EMAIL_Q
+	{
+		L"Client failing to send emails?",
+		L"Client failing to send emails?",
+		L"شکست برای ارسال ایمیل؟", //TODO this is google translate
+	},
+	//MANUAL_EMAIL_TOGGLE_CAPTION
+	{
+		L"If this program says 'failed to send email', check this box to send the emails manually: the program will give you some text to copy+paste into e.g. mail.google.com.",
+		L"If this program says 'failed to send email', check this box to send the emails manually: the program will give you some text to copy+paste into e.g. mail.google.com.",
+		L"برای فرستادن ایمیل ها از طرف برنامه و به صورت دستی اینجا را کلیک کنید"
+	},
+	//ENTER_ANY_EMAIL_ADDRESS
+	{
+		L"Enter any email address:",
+		L"Email 邮箱:",
+		L"هر آدرس ایمیل را وارد کنید" //TODO UPDATE (from this google translate), should be just "any address"
+	},
+	//ENTER_ANY_EMAIL_ADDRESS_VERBOSE eh... the verbose stuff no longer applies when it's manual (which is what this is for)
+	{
+		L"Enter any email address:",
+		L"Email 邮箱:",
+		L"هر آدرس ایمیل را وارد کنید" //TODO UPDATE (from this google translate), should be just "any address"
+	},
+	//COPY_THIS_BODY
+	{
+		L"Copy+paste into email body:",
+		L"Copy+paste into email body:",
+		L"Email body:"
+	},
+	//COPY_THIS_SUBJECT
+	{
+		L"Copy+paste into email subject:",
+		L"Copy+paste into email subject:",
+		L"Email subject:"
+	},
+	//OPEN_RECEIVED_ATTACHMENT
+	{
+		L"Open downloaded attachment",
+		L"Open downloaded attachment",
+		L"گسترش فایل های دانلود شده"
+	},
+	//USE_THIS_BUTTON_TO_SELECT_ATTACHMENT
+	{
+		L"Copy the above information into an email and send it, and in ~30 seconds you should receive a reply. The reply will have an attachment. Please download the attachment, and then click this button and specify where you saved the file.",
+		L"Copy the above information into an email and send it, and in ~30 seconds you should receive a reply. The reply will have an attachment. Please download the attachment, and then click this button and specify where you saved the file.",
+		L"اطلاعات بالا را در یک ایمیل کپی کنید و بفرستید.تقریبا یک دقیقه بعد باید یک جواب دریافت کنید.جواب یک فایل ضمیمه دارد، لطفا آن را دانلود کنید و سپس روی این دکمه کلیک کنید و جایی که فایل را ذخیره کرده اید مشخص کنید."
+	},
+	//COPY_THIS_ADDRESS_TO_SEND
+	{
+		L"Copy+paste this address to send to:",
+		L"Copy+paste this address to send to:",
+		L"نشانی به:"
+	},
+	//FILE_DOES_NOT_EXIST
+	{
+		L"File does not exist or cannot be read!",
+		L"File does not exist or cannot be read!",
+		L"File does not exist or cannot be read!"
 	}
 };
 
 
-const LPTSTR localizeConst(LocalizedString theStrEnumMember)
+const WCHAR* localizeConst(LocalizedString theStrEnumMember)
 {
 	return allStrings[theStrEnumMember][gChosenLanguage];
 }
@@ -1015,4 +1075,11 @@ void setAllText()
 	SetWindowText(bttnLogin,				localizeConst(LOGIN_BUTTON));
 	SetWindowText(bttnAndroidGetter,		localizeConst(GET_CREDENTIALS_FOR_ANDROID));
 	SetWindowText(bttniOSGetter,			localizeConst(GET_CREDENTIALS_FOR_IOS));
+	SetWindowText(framCantEmailFrame,		localizeConst(SALMON_CANT_EMAIL_Q));
+	SetWindowText(chekManualEmail,			localizeConst(MANUAL_EMAIL_TOGGLE_CAPTION));
+	SetWindowText(sttcManualEmailTo,		localizeConst(COPY_THIS_ADDRESS_TO_SEND));
+	SetWindowText(sttcManualEmailSubject,	localizeConst(COPY_THIS_SUBJECT));
+	SetWindowText(sttcManualEmailBody,		localizeConst(COPY_THIS_BODY));
+	SetWindowText(sttcManualFindFileDescription,localizeConst(USE_THIS_BUTTON_TO_SELECT_ATTACHMENT));
+	SetWindowText(bttnManualEmailFindRecvd,	localizeConst(OPEN_RECEIVED_ATTACHMENT));
 }

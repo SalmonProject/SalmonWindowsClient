@@ -23,8 +23,7 @@
 #include <windowsx.h>
 #include <WinCrypt.h>
 #include <process.h>
-#include <set>
-using std::set;
+#include <string>
 using std::string;
 
 #include "../Wrapper/cSmtp.hpp"
@@ -39,145 +38,70 @@ using std::string;
 #include "hwnds.h"
 #include "localization.h"
 #include "email.h"
+#include "manual_or_blocking_email.h"
 #include "connect_attempt.h"
 #include "control_softether.h"
 
-
-
-//Tries to get a new server from the directory server. Returns true if successful.
-//writes the gotten IP address into ipAddrBuf if successful. This function blocks until the dir server responds.
-NeedServerSuccess needServer(const ConnectAnyVPNAttemptResult& res, vector<VPNInfo>* VPNGateServers)
+bool validateEmailAddress(const char* theAddress)
 {
-	//make the needServer request. we need to tell the directory about all of the servers we failed to connect to.
-	string needServerString = "needServer";
-	if (!res.triedAddrs.empty())
-	{
-		needServerString += "\n^*tried:^*";
-		for (set<string>::const_iterator itty = res.triedAddrs.begin(); itty != res.triedAddrs.end(); itty++)
-			needServerString += ("\n" + *itty);
-	}
-
-	if (!res.serverErrorAddrs.empty())
-	{
-		needServerString += "\n^*error:^*";
-		for (set<string>::const_iterator itty = res.serverErrorAddrs.begin(); itty != res.serverErrorAddrs.end(); itty++)
-			needServerString += ("\n" + *itty);
-	}
-
-
-	WCHAR* passNeedServerString = new WCHAR[needServerString.length() + 1];
-	mbstowcs(passNeedServerString, needServerString.c_str(), needServerString.length() + 1);
-
-	char ourRandStr[51];
-	if (!sendMail(passNeedServerString, ourRandStr))
-	{
-		MessageBox(NULL, localizeConst(FAILED_TO_SEND_EMAIL), localizeConst(ERROR_STR), MB_OK);
-		delete passNeedServerString;
-		return NEED_SERVER_GOT_NONE;
-	}
-	delete passNeedServerString;
-
-	RecvThreadStruct tempRecvStruct(ourRandStr, nullMailCallback);
-	recvThread(&tempRecvStruct);
-
-	if (tempRecvStruct.charsRecvd > 0 && strchr(tempRecvStruct.buffer, '$')) //dir server indicating an error. (but might be including VPN Gate servers.)
-	{
-		localizeDirServMsgBox(tempRecvStruct.buffer, localizeConst(ERROR_STR));
-		ShowWindow(wndwWaiting, SW_HIDE);
-
-		bool gotAnyVPNGates = false;
-
-		//if the directory server couldn't give us any salmon servers, it might instead give some VPN gate servers. 
-		char* curVPNgate = strstr(tempRecvStruct.buffer, "VPNGATE");
-		while (curVPNgate)
-		{
-			parseVPNGateItem(curVPNgate, VPNGateServers);
-
-			gotAnyVPNGates = true;
-
-			if (cancelConnectionAttempt)
-				break;
-
-			//advance to next item, if there is another
-			curVPNgate = strstr(curVPNgate+1, "VPNGATE");
-		}
-
-		//forget any servers the directory server wants us to forget
-		executeAllPurges(tempRecvStruct.buffer);
-
-		//only return false - i.e. no servers were gotten so we definitely can't connect - if we didn't get any VPN Gate servers.
-		if (gotAnyVPNGates)
-			return NEED_SERVER_GOT_VPNGATE;
-		else
-			return NEED_SERVER_GOT_NONE;
-	}
-	else if (tempRecvStruct.charsRecvd > 0) //received some sort of non-$error response; try to parse it.
-	{
-		if (!parseNewSalmonServer(tempRecvStruct.buffer))
-			return NEED_SERVER_GOT_NONE;
-
-		//forget any servers the directory server wants us to forget
-		executeAllPurges(tempRecvStruct.buffer);
-
-		return NEED_SERVER_GOT_SALMON;
-	}
-	else
-		return NEED_SERVER_GOT_NONE;
+	//If they're doing manual email sending, just make sure it's an email-address-looking thing.
+	return gManualEmail.enabled && theAddress[0] != 0 && theAddress[0] != '@' && strchr(theAddress, '@')
+	//If the email sending is not manual, then make sure the address is with one of the services we support.
+		|| strstr(theAddress, "@gmail.com") || strstr(theAddress, "@hotmail.com") || strstr(theAddress, "@outlook.com") || strstr(theAddress, "@yahoo.com");
 }
 
-
-using namespace vmime::wrapper;
-
-//NOTE because we're relying on a null terminator, this can only send unicode strings
-//NOTE rndStr must be an allocated wchar_t array of at least 51 elements
-//Sends a message to the directory server's email account, in the standard format.
-bool sendMail(const WCHAR* send_buf, char* rndStr)
+string generateEmailRandomID()
 {
+	char rawRandBuf[EMAIL_RANDOM_ID_STRLEN+1];
+
+	HCRYPTPROV cryptProvider = 0;
+	CryptAcquireContext(&cryptProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
+	CryptGenRandom(cryptProvider, EMAIL_RANDOM_ID_STRLEN, (BYTE*)rawRandBuf);
+	CryptReleaseContext(cryptProvider, 0);
+	for (int i = 0; i < EMAIL_RANDOM_ID_STRLEN; i++)
+		rawRandBuf[i] = (char)(97 + ((unsigned char)rawRandBuf[i]) % 26);
+	rawRandBuf[EMAIL_RANDOM_ID_STRLEN] = '\0';
+
+	return string(rawRandBuf);
+}
+
+SendMailSuccess sendEmailToSalmonBackend(const std::wstring& messageToSend, const string& rndStr)
+{
+	using namespace vmime::wrapper;
 	//By default, SoftEther servers don't let clients do SMTP, which is reasonable.
 	//So, if the user is connected and wants to do something that would send an email 
 	//(e.g. have VPN info mailed to phone), tell them to disconnect first.
 	if (gVPNConnected)
 	{
 		MessageBox(NULL, localizeConst(CANT_SEND_EMAIL_WHILE_CONNECTED), localizeConst(ERROR_STR), MB_OK);
-		return false;
+		return SEND_MAIL_FAIL;
 	}
 
-	HCRYPTPROV cryptProvider = 0;
-	CryptAcquireContext(&cryptProvider, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT);
-	CryptGenRandom(cryptProvider, 50, (BYTE*)rndStr);
-	CryptReleaseContext(cryptProvider, 0);
-
-	for (int i = 0; i < 50; i++)
-		rndStr[i] = (char)(97 + ((unsigned char)rndStr[i]) % 26);
-	rndStr[50] = '\0';
-	WCHAR rndStrW[51];
-	mbstowcs(rndStrW, rndStr, 51);
-	rndStrW[50] = L'\0';
-
-	const WCHAR* mailSubject = L"salmon backend - does not need to be seen by humans";
-
+	//build the attachment
 	WCHAR salmonAttachTempPath[300];
 	GetTempPath(300, salmonAttachTempPath);
 	wcscat(salmonAttachTempPath, L"salmonattach.txt");
-
 	FILE* outFile = _wfopen(salmonAttachTempPath, L"wt, ccs=UTF-8");
-	fwrite(send_buf, sizeof(WCHAR), wcslen(send_buf), outFile);
+	fwrite(messageToSend.c_str(), sizeof(WCHAR), wcslen(messageToSend.c_str()), outFile);
 	fclose(outFile);
 
-	//build the email
 
+	//build the email
 	WCHAR userLoginW[EMAIL_ADDR_BUFSIZE];
 	WCHAR passwordW[EMAIL_PASSWORD_BUFSIZE];
 	mbstowcs(userLoginW, gUserEmailAccount, EMAIL_ADDR_BUFSIZE);
 	mbstowcs(passwordW, gUserEmailPassword, EMAIL_PASSWORD_BUFSIZE);
 
-
+	const WCHAR* mailSubject = L"salmon backend - does not need to be seen by humans";
 	cEmailBuilder emailObjectToSend(userLoginW, mailSubject, IDR_MIME_TYPES);
 
 	emailObjectToSend.AddTo(salmonDirServAddr);
 
 	WCHAR emailBody[200];
 	wcscpy(emailBody, L"Hello, do not reply to this email. No person reads mail that this address receives.\nUnique identifier ");
+	WCHAR rndStrW[51];
+	mbstowcs(rndStrW, rndStr.c_str(), 51);
+	rndStrW[50] = L'\0';
 	wcscat(emailBody, rndStrW);
 	emailObjectToSend.SetPlainText(emailBody);
 
@@ -211,14 +135,47 @@ bool sendMail(const WCHAR* send_buf, char* rndStr)
 
 	_wunlink(salmonAttachTempPath);
 
-	return success;
+	return success ? SEND_MAIL_SUCCESS : SEND_MAIL_FAIL;
 }
+
+
+//NOTE because we're relying on a null terminator, this can only send unicode strings
+//Sends a message to the directory server's email account, in the standard format.
+//Handles the manual / automatic distinction (returns SEND_MAIL_MANUAL if it's going to be done manually).
+SendMailSuccess sendMessageToDirServ(const std::wstring& messageToSend, void(*theCallback)(RecvMailCodes, string))
+{
+	//If they have chosen to relay the emails manually through their normal way
+	//of sending email, go do that instead of the automated SMTP stuff in here.
+	if (gManualEmail.enabled)
+		return gManualEmail.initiateAsyncManualEmail(messageToSend, theCallback);
+	else
+	{
+		disableAllButtonsAll();
+
+		string randomEmailID = generateEmailRandomID();
+		SendMailSuccess mailSucceeded = sendEmailToSalmonBackend(messageToSend, randomEmailID);
+
+		if (mailSucceeded == SEND_MAIL_FAIL)
+		{
+			MessageBox(NULL, localizeConst(FAILED_TO_SEND_EMAIL), localizeConst(ERROR_STR), MB_OK);
+			enableAllButtonsAll();
+		}
+
+		RecvThreadArguments* passArgs = new RecvThreadArguments(randomEmailID, theCallback, false);
+		//new'd arguments are delete'd in thread
+		CreateThread(NULL, 0, recvThread, passArgs, 0, NULL);
+
+		return SEND_MAIL_SUCCESS;
+	}
+}
+
 
 //It's already a little unfortunate that we're asking them for an email password...
 //so rather than having a general "send mail" function, which would be creepy, 
 //the program is only capable of sending to the salmon address, or to the user's own address.
 bool sendSelfMail(const WCHAR* send_buf, const WCHAR* mailSubject)
 {
+	using namespace vmime::wrapper;
 	//By default, SoftEther servers don't let clients do SMTP, which is reasonable.
 	//So, if the user is connected and wants to do something that would send an email 
 	//(e.g. have VPN info mailed to phone), tell them to disconnect first.
@@ -267,9 +224,13 @@ bool sendSelfMail(const WCHAR* send_buf, const WCHAR* mailSubject)
 
 bool cancelRecvFlag = false;
 
-//attempt to receive an email into buffer. discard any "salmon backend" subject mails that don't match randomStr. returns bytes written into buffer.
-void recvMail(RecvThreadStruct* ret, cImap IMAPinstance, int numPastEmailsToExamine)
+//Attempts to receive an email via IMAP. Discards any "salmon backend" subject mails that don't match randomString.
+//Returns text of the received message - that is, the contents of the attached file attach.txt.
+string emailAccountTryRecvMessage(const string& randomString, vmime::wrapper::cImap IMAPinstance, int numPastEmailsToExamine)
 {
+	using namespace vmime::wrapper;
+
+	string toReturn = "";
 	try
 	{
 		bool allDoneFlag = false;
@@ -277,14 +238,12 @@ void recvMail(RecvThreadStruct* ret, cImap IMAPinstance, int numPastEmailsToExam
 		int charsRead = 0;
 
 		WCHAR randStrW[51];
-		mbstowcs(randStrW, ret->randomString, 51);
+		mbstowcs(randStrW, randomString.c_str(), 51);
+
 
 		
 		try{ IMAPinstance.selectDefaultFolder(); }
 		catch (const std::exception& e){MessageBoxA(NULL, e.what(), "selectdefault", MB_OK);}
-
-
-
 
 		//IMAPinstance.SelectFolder(L"INBOX"); // Sends the SELECT command
 		int numEmailsInInbox;
@@ -294,11 +253,9 @@ void recvMail(RecvThreadStruct* ret, cImap IMAPinstance, int numPastEmailsToExam
 
 
 		vector< int > emailsToDelete;
-
+		
 		//NOTE: if you start with M = 0 and count up, then you're going oldest -> newest.
-
 		int emailsExamined = 0;
-
 		for (int M = numEmailsInInbox - 1; M >= 0 && emailsExamined < numPastEmailsToExamine; M--, emailsExamined++)
 		{
 			GuardPtr<cEmailParser> recvdEmail = IMAPinstance.FetchEmailAt(M);
@@ -321,7 +278,7 @@ void recvMail(RecvThreadStruct* ret, cImap IMAPinstance, int numPastEmailsToExam
 				vmime::string& attachData_ref = attachData;
 
 				recvdEmail->GetAttachmentAt(0, dummyName_ref, dummyMimeType_ref, attachData_ref);
-				ret->receiveData(attachData.c_str(), attachData.length());
+				toReturn = string(attachData);
 
 				emailsToDelete.push_back(M+1);
 			}
@@ -338,7 +295,7 @@ void recvMail(RecvThreadStruct* ret, cImap IMAPinstance, int numPastEmailsToExam
 			IMAPinstance.deleteMessages(emailsToDelete);
 
 		if (allDoneFlag)
-			return;
+			return toReturn;
 	}
 	catch (const std::exception& e)
 	{
@@ -347,24 +304,15 @@ void recvMail(RecvThreadStruct* ret, cImap IMAPinstance, int numPastEmailsToExam
 		MessageBox(NULL, exceptionW, localizeConst(FAILED_TO_READ_EMAIL), MB_OK);
 		delete exceptionW;
 	}
-	return;
+	return toReturn;
 }
 
 
-
 HANDLE recvThreadMutex;
-void nullMailCallback(RecvMailCodes dummy){ return; }
-//parameter is a RecvThreadStruct pointer
-
-extern HWND wndwWaiting;
-extern HWND sttcWaiting;
-extern HWND bttnCancelWaiting;
-DWORD WINAPI recvThread(LPVOID lpParam)
+//Tries several times over the course of ~a minute to retrieve a specific directory server response.
+DWORD waitForEmailMessage(RecvThreadArguments* ourStruct, string* optionalOutString)
 {
-	Static_SetText(sttcWaiting, localizeConst(WAITING_FOR_RESPONSE));
-	ShowWindow(bttnCancelWaiting, SW_SHOW);
-
-	RecvThreadStruct* ourStruct = (RecvThreadStruct*)lpParam;
+	using namespace vmime::wrapper;
 
 	//NOTE: don't need to care about a WAIT_ABANDONED result, because we're just trying to limit this thread to one invocation at a time, not share some resource.	
 	WaitForSingleObject(recvThreadMutex, INFINITE);
@@ -400,8 +348,8 @@ DWORD WINAPI recvThread(LPVOID lpParam)
 	__int64 secondsToWait = 70;
 	//just in case our response somehow got buried under a (very recent) huge pile, keep letting recvMail check one more back into the future.
 	int numPastEmailsToExamine = 2;
-	
-	WaitForMail:
+
+WaitForMail:
 	hnsecs1600Start = getHNsecsSince1600();
 	while (getHNsecsSince1600() - hnsecs1600Start < secondsToWait * 1000 * 1000 * 10)
 	{
@@ -409,20 +357,29 @@ DWORD WINAPI recvThread(LPVOID lpParam)
 		//that matches the random string we're told to be on the lookout for, thus avoiding
 		//spurious replies, e.g. to operations the user previously cancelled out of.
 		//if we are told to cancel, simply exit (don't need to do a MAIL_FAILED notify; see below).
-		recvMail(ourStruct, theIMAP, numPastEmailsToExamine);
+		string receivedMessage = emailAccountTryRecvMessage(ourStruct->randomString, theIMAP, numPastEmailsToExamine);
 		numPastEmailsToExamine++;
 
-		if (ourStruct->charsRecvd > 0)
+		if (receivedMessage.length() > 0)
 		{
 			//NOTE: release mutex before callback, because maybe the callback will also want to do a recvThread, 
 			//		and we're defintiely out of the dangerous part by this point.
 			theIMAP.Close();
 			ReleaseMutex(recvThreadMutex);
-			
+
 			if (!cancelRecvFlag)
-				ourStruct->callback(RECV_MAIL_SUCCESS);
+			{
+				if (optionalOutString) 
+					*optionalOutString = receivedMessage;
+				ourStruct->callback(RECV_MAIL_SUCCESS, receivedMessage);
+			}
 			else
-				ourStruct->callback(RECV_MAIL_CANCEL);
+			{
+				if (optionalOutString)
+					*optionalOutString = "";
+				ourStruct->callback(RECV_MAIL_CANCEL, "");
+			}
+			enableAllButtonsAll();
 
 			cancelRecvFlag = false;
 
@@ -433,9 +390,11 @@ DWORD WINAPI recvThread(LPVOID lpParam)
 		{
 			cancelRecvFlag = false;
 			theIMAP.Close();
-			ourStruct->charsRecvd = 0;
 			ReleaseMutex(recvThreadMutex);
-			ourStruct->callback(RECV_MAIL_CANCEL);
+			if (optionalOutString)
+				*optionalOutString = "";
+			ourStruct->callback(RECV_MAIL_CANCEL, "");
+			enableAllButtonsAll();
 			return 0;
 		}
 		Sleep(1000);
@@ -450,18 +409,102 @@ DWORD WINAPI recvThread(LPVOID lpParam)
 
 	//[timeout has happened since we have reached here, so RECV_MAIL_FAIL]
 	theIMAP.Close();
-	ourStruct->charsRecvd = 0;
 	ReleaseMutex(recvThreadMutex);
-	ourStruct->callback(RECV_MAIL_FAIL);
+	if (optionalOutString)
+		*optionalOutString = "";
+	ourStruct->callback(RECV_MAIL_FAIL, "");
+	enableAllButtonsAll();
 
 
 	return 0;
 }
 
+//If optionalOutString is not null, we should store the server's response text in
+//it before calling the callback. This is only used by the blocking version of
+//the email communication, which is why the recvThread() function below always
+//passes 0 for this parameter.
+DWORD recvThreadFunction(RecvThreadArguments* theArgs, string* optionalOutString)
+{
+	Static_SetText(sttcWaiting, localizeConst(WAITING_FOR_RESPONSE));
+	ShowWindow(bttnCancelWaiting, SW_SHOW);
 
+	RecvThreadArguments ourStruct = *theArgs;
+	delete theArgs;
+
+	if (ourStruct.sendingIsManual == false)
+		return waitForEmailMessage(&ourStruct, optionalOutString);
+	else if (ourStruct.sendingIsManual == true)
+	{
+		//nothing to be done! callback is called by the manual send/recv window's completion button.
+		return 0;
+	}
+	return 0;
+}
+
+//parameter is a RecvThreadStruct pointer
+DWORD WINAPI recvThread(LPVOID lpParam)
+{
+	return recvThreadFunction((RecvThreadArguments*)lpParam, 0);
+}
+
+
+std::wstring constructVPNListEmailForAndroid()
+{
+	std::wstring credBody(localizeConst(ANDROID_VPNLIST_HEADER));
+	//credBody should look like:
+	//=====================================
+	//[Localized, explanatory header blurb]
+	//Server: 1.2.3.4
+	//Pre-shared key (PSK): abcdef
+	//Username: abcdefghikjlsdfj
+	//Password: abcdfeghtifdjkds
+	//
+	//Server: 111.211.113.114
+	//Pre-shared key (PSK): abcdef
+	//Username: bbbbbbbbbbbbbbbbbb
+	//Password: ccccccccccccccccc
+	//
+	//Server: 5.42.23.24
+	//Pre-shared key (PSK): abcdef
+	//Username: eeeeeeeeeeeeeeee
+	//Password: ffffffffffffffff
+	//
+	//[etc.]
+	//=====================================
+	for (int i = 0; i < gKnownServers.size(); i++)
+	{
+		WCHAR wAddr[60];
+		mbstowcs(wAddr, gKnownServers[i].addr, 60); wAddr[59] = 0;
+		credBody += L"Server: ";
+		credBody += wAddr;
+
+		WCHAR wPSK[10];
+		mbstowcs(wPSK, gKnownServers[i].psk, 10); wPSK[9] = 0;
+		credBody += L"\nPre-shared key (PSK): ";
+		credBody += wPSK;
+
+		//derive username and pw
+		char pwToUse[VPN_DERIVED_PASSWORD_LENGTH + 1];
+		char userNameToUse[VPN_DERIVED_PASSWORD_LENGTH + 1];
+		derivePassword(pwToUse, gBaseVPNPassword, gKnownServers[i].addr);
+		deriveUsername(userNameToUse, gBaseVPNPassword, gKnownServers[i].addr);
+		WCHAR wPW[VPN_DERIVED_PASSWORD_LENGTH + 1];
+		WCHAR wName[VPN_DERIVED_PASSWORD_LENGTH + 1];
+		mbstowcs(wPW, pwToUse, VPN_DERIVED_PASSWORD_LENGTH + 1);
+		mbstowcs(wName, userNameToUse, VPN_DERIVED_PASSWORD_LENGTH + 1);
+
+		credBody += L"\nUsername: ";
+		credBody += wName;
+		credBody += L"\nPassword: ";
+		credBody += wPW;
+		credBody += L"\n\n";
+	}
+	return credBody;
+}
 
 bool sendMobileconfigs()
 {
+	using namespace vmime::wrapper;
 	//By default, SoftEther servers don't let clients do SMTP, which is reasonable.
 	//So, if the user is connected and wants to do something that would send an email 
 	//(e.g. have VPN info mailed to phone), tell them to disconnect first.
@@ -485,21 +528,21 @@ bool sendMobileconfigs()
 	emailObjectToSend.SetPlainText(credBody);
 
 	//generate each mobileconfig file (one per VPN server we know of), and attach it.
-	std::vector<std::wstring> attachFiles;
-	for (int i = 0; i < knownServers.size(); i++)
+	vector<wstring> attachFiles;
+	for (int i = 0; i < gKnownServers.size(); i++)
 	{
 		//retrieve IP addr, PSK, and derive vpn username+pw
 		WCHAR wAddr[60];
-		mbstowcs(wAddr, knownServers[i].addr, 60); wAddr[59] = 0;
+		mbstowcs(wAddr, gKnownServers[i].addr, 60); wAddr[59] = 0;
 
 		WCHAR wPSK[10];
-		mbstowcs(wPSK, knownServers[i].psk, 10); wPSK[9] = 0;
+		mbstowcs(wPSK, gKnownServers[i].psk, 10); wPSK[9] = 0;
 
 		//derive vpn username and pw from base password
 		char pwToUse[VPN_DERIVED_PASSWORD_LENGTH + 1];
 		char userNameToUse[VPN_DERIVED_PASSWORD_LENGTH + 1];
-		derivePassword(pwToUse, gBaseVPNPassword, knownServers[i].addr);
-		deriveUsername(userNameToUse, gBaseVPNPassword, knownServers[i].addr);
+		derivePassword(pwToUse, gBaseVPNPassword, gKnownServers[i].addr);
+		deriveUsername(userNameToUse, gBaseVPNPassword, gKnownServers[i].addr);
 		WCHAR wPW[VPN_DERIVED_PASSWORD_LENGTH + 1];
 		WCHAR wName[VPN_DERIVED_PASSWORD_LENGTH + 1];
 		mbstowcs(wPW, pwToUse, VPN_DERIVED_PASSWORD_LENGTH + 1);

@@ -22,6 +22,10 @@
 #include <time.h>
 #include <vector>
 using std::vector;
+#include <string>
+using std::string;
+#include <set>
+using std::set;
 
 #include "salmon_constants.h"
 #include "salmon_globals.h"
@@ -45,6 +49,8 @@ bool connectedToInternet()
 		return checkGoogleHTTPS(); 
 }
 
+//Shows, on the connection status STATIC of the main window, how many servers
+//the current connection attempt has left to go before it gives up.
 void showServersLeft(int numLeft)
 {
 	wchar_t connCountStr[40];
@@ -57,12 +63,14 @@ void showServersLeft(int numLeft)
 	Static_SetText(sttcConnectStatus, connStatusWithCount);
 }
 
-//try to connect to any server in the knownServers list
+//Try to connect to any server in the knownServers list. If we can't connect
+//to any, record (in the returned object) which addresses we tried, and more
+//specifically which had some sort of error, and which just seem offline. 
 ConnectAnyVPNAttemptResult tryConnectAnyServer()
 {
 	ConnectAnyVPNAttemptResult ret;
 
-	if (knownServers.empty())
+	if (gKnownServers.empty())
 		return ret; //false
 
 	time_t now;
@@ -73,37 +81,33 @@ ConnectAnyVPNAttemptResult tryConnectAnyServer()
 	vector<int> tryLater;
 
 TrySomeServers:
-	for (int ind = 0; ind< (nowTryingSkippedOnes ? tryLater.size() : knownServers.size()); ind++)
+	for (int ind = 0; ind< (nowTryingSkippedOnes ? tryLater.size() : gKnownServers.size()); ind++)
 	{
 		int i = (nowTryingSkippedOnes ? tryLater[ind] : ind);
 
-		showServersLeft(nowTryingSkippedOnes ? tryLater.size() - ind : (knownServers.size() - i) + tryLater.size());
+		showServersLeft(nowTryingSkippedOnes ? tryLater.size() - ind : (gKnownServers.size() - i) + tryLater.size());
 
 		//First, just give up if the user cancelled the connection attempt.
-		if (cancelConnectionAttempt)
+		if (gCancelConnectionAttempt)
 			return ret;
 
-		//alright, the "skip if failed to connect recently" logic used to be 1hr, but now that we can't ping to check if servers are up
-		//(meaning we have to try connecting to all of them, and it appears that even waiting for 3s sometimes isn't enough?), we really
-		//need to skip ones that are likely to be down. so now the interval will be random between [2,7] days. the idea is that we want 
-		//to skip likely-down ones most of the time so as not to make the user sit through like dozens of seconds of connection attempts,
-		//but also, in case it's a better bw / RTT than some always-up server, we should give it occasional chances to come back.
-		//and of course, all of this is complemented by the purging system.
-		//(and of course, if none of them can connect, we go through and try all anyways, so it's safe.)
+		//A failed connection attempt takes several seconds, so we really need to skip ones that are likely to be down. So, have 
+		//a random interval of [2,7] days after a failed attempt before that server is tried again. We want to skip likely-down 
+		//ones most of the time so as not to make the user sit through dozens of seconds of connection attempts, but also, in 
+		//case a server has better performance than some always-up server, we should give it occasional chances to come back.
+		//And of course, all of this is complemented by the purging system.
+		//(And also of course, if none of the first ones we try can connect, we go through and try the rest anyways, so it's safe.)
 		time(&now);
-		if (!nowTryingSkippedOnes && now - knownServers[i].lastAttempt <= knownServers[i].secondsTilNextAttempt)
+		if (!nowTryingSkippedOnes && now - gKnownServers[i].lastAttempt <= gKnownServers[i].secondsTilNextAttempt)
 		{
 			tryLater.push_back(i);
 			continue;
 		}
 
-
-
-		ConnectServerStatus conStatus = connectToVPNServer(knownServers[i]);
-
+		ConnectServerStatus conStatus = connectToVPNServer(gKnownServers[i]);
 		if (conStatus == CONNECT_SERVER_SUCCESS)
 		{
-			knownServers[i].failureCount = 0;
+			gKnownServers[i].failureCount = 0;
 			ret.connectedSuccessfully = true;
 			return ret;
 		}
@@ -115,18 +119,18 @@ TrySomeServers:
 		{
 			if(connectedToInternet())
 			{
-				ConnectServerStatus conTry2Status = connectToVPNServer(knownServers[i]);
+				ConnectServerStatus conTry2Status = connectToVPNServer(gKnownServers[i]);
 				if (conTry2Status == CONNECT_SERVER_SUCCESS)
 				{
-					knownServers[i].failureCount = 0;
+					gKnownServers[i].failureCount = 0;
 					ret.connectedSuccessfully = true;
 					return ret;
 				}
 				else if(conTry2Status == CONNECT_SERVER_OFFLINE && connectedToInternet())
 				{	
-					ret.triedAddrs.insert(knownServers[i].addr);
-					knownServers[i].lastAttempt = now;
-					knownServers[i].failureCount++;
+					ret.triedAddrs.insert(gKnownServers[i].addr);
+					gKnownServers[i].lastAttempt = now;
+					gKnownServers[i].failureCount++;
 				}
 				else if (conTry2Status == CONNECT_SERVER_OFFLINE)
 				{
@@ -135,31 +139,24 @@ TrySomeServers:
 				}
 				else if (conStatus == CONNECT_SERVER_ERROR)
 				{
-					ret.serverErrorAddrs.insert(knownServers[i].addr);
-					knownServers[i].lastAttempt = now;
-					knownServers[i].failureCount++;
+					ret.serverErrorAddrs.insert(gKnownServers[i].addr);
+					gKnownServers[i].lastAttempt = now;
+					gKnownServers[i].failureCount++;
 				}
-				else //if(conStatus == CONNECT_SERVER_CLIENT_ERROR)
-				{
+				//else if(conStatus == CONNECT_SERVER_CLIENT_ERROR)
 					//just pretend we didn't try; this lets needServer fix our bad entry
-				}
 			}
-			else
-			{
-				//If we've detected internet connectivity problems, it is NOT ok to make a (probably erroneous) needServer request.
+			else //If we've detected internet connectivity problems, it is NOT ok to make a (probably erroneous) needServer request.
 				okToNeedServer = false;
-			}
 		}
 		else if (conStatus == CONNECT_SERVER_ERROR)
 		{
-			ret.serverErrorAddrs.insert(knownServers[i].addr);
-			knownServers[i].lastAttempt = now;
-			knownServers[i].failureCount++;
+			ret.serverErrorAddrs.insert(gKnownServers[i].addr);
+			gKnownServers[i].lastAttempt = now;
+			gKnownServers[i].failureCount++;
 		}
-		else //if(conStatus == CONNECT_SERVER_CLIENT_ERROR)
-		{
+		//else if(conStatus == CONNECT_SERVER_CLIENT_ERROR)
 			//just pretend we didn't try; this lets needServer fix our bad entry
-		}
 	}
 
 	if (!ret.connectedSuccessfully && !nowTryingSkippedOnes)
@@ -175,14 +172,96 @@ TrySomeServers:
 	{
 		MessageBox(NULL, localizeConst(GAVE_UP_DUE_TO_CONNECTIVITY_PROBLEMS), L"", MB_OK);
 		ret.connectedSuccessfully = false; //(should not be necessary, but just to be explicit)
-		cancelConnectionAttempt = true;
+		gCancelConnectionAttempt = true;
 		return ret;
 	}
 
-	//NOTE: this function doesn't get called if the user cancels the attempt, and that's ok.
+	//NOTE: this function call is not reached if the user cancels the attempt, and that's ok.
 	writeSConfigFromKnownServers();
 
 	return ret;
+}
+
+//Makes the needServer request text: we need to tell the directory about all of the servers we failed to connect to.
+std::wstring buildNeedServerRequestString(const ConnectAnyVPNAttemptResult& res)
+{
+	string needServerString = "needServer";
+	if (!res.triedAddrs.empty())
+	{
+		needServerString += "\n^*tried:^*";
+		for (set<string>::const_iterator itty = res.triedAddrs.begin(); itty != res.triedAddrs.end(); itty++)
+			needServerString += ("\n" + *itty);
+	}
+
+	if (!res.serverErrorAddrs.empty())
+	{
+		needServerString += "\n^*error:^*";
+		for (set<string>::const_iterator itty = res.serverErrorAddrs.begin(); itty != res.serverErrorAddrs.end(); itty++)
+			needServerString += ("\n" + *itty);
+	}
+
+	WCHAR* convertNeedServer = new WCHAR[needServerString.length() + 1];
+	mbstowcs(convertNeedServer, needServerString.c_str(), needServerString.length() + 1);
+	std::wstring passNeedServerString(convertNeedServer);
+	delete convertNeedServer;
+
+	return passNeedServerString;
+}
+
+//Tries to get a new server from the directory server. Returns a status code (enum NeedServerSuccess).
+//writes the gotten IP address into ipAddrBuf if successful. This function blocks until the dir server responds.
+NeedServerSuccess needServer(const ConnectAnyVPNAttemptResult& res, vector<VPNInfo>* VPNGateServers)
+{
+	std::wstring needServerRequest = buildNeedServerRequestString(res);
+
+	SyncMailReturn sendMailReply = sendAndRecvMailBlocking(needServerRequest);
+	if (sendMailReply.sendStatus == SEND_MAIL_FAIL)
+	{
+		MessageBox(NULL, localizeConst(FAILED_TO_SEND_EMAIL), localizeConst(ERROR_STR), MB_OK);
+		return NEED_SERVER_GOT_NONE;
+	}
+
+	if (sendMailReply.receivedAnything && strchr(sendMailReply.response.c_str(), '$')) //dir server indicating an error. (but might be including VPN Gate servers.)
+	{
+		localizeDirServMsgBox(sendMailReply.response.c_str(), localizeConst(ERROR_STR));
+		ShowWindow(wndwWaiting, SW_HIDE);
+
+		bool gotAnyVPNGates = false;
+
+		//if the directory server couldn't give us any salmon servers, it might instead give some VPN gate servers. 
+		const char* curVPNgate = strstr(sendMailReply.response.c_str(), "VPNGATE");
+		while (curVPNgate)
+		{
+			parseVPNGateItem(curVPNgate, VPNGateServers);
+			gotAnyVPNGates = true;
+
+			if (gCancelConnectionAttempt)
+				break;
+
+			//advance to next item, if there is another
+			curVPNgate = strstr(curVPNgate + 1, "VPNGATE");
+		}
+
+		//forget any servers the directory server wants us to forget
+		executeAllPurges(sendMailReply.response.c_str());
+
+		if (gotAnyVPNGates)
+			return NEED_SERVER_GOT_VPNGATE;
+		else
+			return NEED_SERVER_GOT_NONE;
+	}
+	else if (sendMailReply.receivedAnything) //received some sort of non-$error response; try to parse it.
+	{
+		if (!parseNewSalmonServer(sendMailReply.response))
+			return NEED_SERVER_GOT_NONE;
+
+		//forget any servers the directory server wants us to forget
+		executeAllPurges(sendMailReply.response.c_str());
+
+		return NEED_SERVER_GOT_SALMON;
+	}
+	else
+		return NEED_SERVER_GOT_NONE;
 }
 
 DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
@@ -195,14 +274,14 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 
 	//try all of our servers. if we can't connect to any of them...
 	ConnectAnyVPNAttemptResult res = tryConnectAnyServer();
-	if (cancelConnectionAttempt && !res.connectedSuccessfully)
+	if (gCancelConnectionAttempt && !res.connectedSuccessfully)
 		goto EndConnAttemptThread;
 	else if (!res.connectedSuccessfully)
 	{
 		//... then send the "needServer" message to the directory server, and wait for a response.
 		MessageBox(NULL, localizeConst(COULDNT_CONNECT_WILL_needServer), L"", MB_OK);
 
-		if (cancelConnectionAttempt)
+		if (gCancelConnectionAttempt)
 			goto EndConnAttemptThread;
 
 		vector<VPNInfo> VPNGateServers; //if needServer gets VPNGate servers for us to process, this is how it tells us about them
@@ -216,7 +295,7 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 		{
 			//Now try connecting again. The "last attempt" logic should mean that only the new server gets tried.
 			ConnectAnyVPNAttemptResult res2 = tryConnectAnyServer();
-			if (cancelConnectionAttempt && !res2.connectedSuccessfully)
+			if (gCancelConnectionAttempt && !res2.connectedSuccessfully)
 				goto EndConnAttemptThread;
 			else if (!res2.connectedSuccessfully)
 				MessageBox(NULL, localizeConst(SORRY_NO_SERVERS_AVAILABLE), localizeConst(ERROR_STR), MB_OK);
@@ -229,29 +308,29 @@ DWORD WINAPI connectionAttemptThread(LPVOID lpParam)
 				showServersLeft(VPNGateServers.size() - i);
 				addVPNInfo(VPNGateServers[i]);
 				int indexKnownServers = 0;
-				for (; indexKnownServers < knownServers.size(); indexKnownServers++)
-					if (!strcmp(knownServers[indexKnownServers].addr, VPNGateServers[i].addr))
+				for (; indexKnownServers < gKnownServers.size(); indexKnownServers++)
+					if (!strcmp(gKnownServers[indexKnownServers].addr, VPNGateServers[i].addr))
 						break;
-				if (indexKnownServers >= knownServers.size())
+				if (indexKnownServers >= gKnownServers.size())
 					goto EndConnAttemptThread;
 
-				if (connectToVPNServer(knownServers[indexKnownServers]) == CONNECT_SERVER_SUCCESS)
+				if (connectToVPNServer(gKnownServers[indexKnownServers]) == CONNECT_SERVER_SUCCESS)
 				{
-					knownServers[indexKnownServers].failureCount = 0;
+					gKnownServers[indexKnownServers].failureCount = 0;
 					writeSConfigFromKnownServers();
 					break;
 				}
 				else
-					knownServers.erase(knownServers.begin() + indexKnownServers);
+					gKnownServers.erase(gKnownServers.begin() + indexKnownServers);
 
-				if (cancelConnectionAttempt)
+				if (gCancelConnectionAttempt)
 					goto EndConnAttemptThread;
 			}
 		}
 	}
 
 EndConnAttemptThread:
-	cancelConnectionAttempt = false;
+	gCancelConnectionAttempt = false;
 	showConnectionStatus(gVPNConnected);
 	ShowWindow(wndwWaiting, SW_HIDE);
 	SetFocus(wndwMain);

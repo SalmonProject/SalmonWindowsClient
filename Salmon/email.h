@@ -19,16 +19,21 @@
 #define _SALMON_EMAIL_INCLGUARD_H_
 
 #include <vector>
+#include <string>
 
 #include "salmon_constants.h"
 #include "connect_attempt.h"
+#include "VPNInfo.h"
 
 extern char gUserEmailAccount[EMAIL_ADDR_BUFSIZE];
 extern char gUserEmailPassword[EMAIL_PASSWORD_BUFSIZE];
 
-bool sendMail(const WCHAR* send_buf, char* rndStr);
-bool sendSelfMail(const WCHAR* send_buf, const WCHAR* mailSubject);
-bool sendMobileconfigs();
+enum SendMailSuccess
+{
+	SEND_MAIL_FAIL = 0,
+	SEND_MAIL_SUCCESS = 1,
+	SEND_MAIL_MANUAL = 2
+};
 
 enum RecvMailCodes
 {
@@ -37,54 +42,38 @@ enum RecvMailCodes
 	RECV_MAIL_SUCCESS = 1
 };
 
-class RecvThreadStruct
+bool validateEmailAddress(const char* theAddress);
+
+SendMailSuccess sendMessageToDirServ(const std::wstring& messageToSend, void(*theCallback)(RecvMailCodes, std::string));
+bool sendSelfMail(const WCHAR* send_buf, const WCHAR* mailSubject);
+bool sendMobileconfigs();
+
+class RecvThreadArguments
 {
 public:
-	char* randomString;
-	char* buffer;
-	int charsRecvd;
-	void(*callback)(RecvMailCodes);
+	std::string randomString;
+	void(*callback)(RecvMailCodes, std::string);
+	bool sendingIsManual;
 
-	RecvThreadStruct(char* rStr, void(*theCB)(RecvMailCodes))
+	RecvThreadArguments(const std::string& rStr, void(*theCB)(RecvMailCodes, std::string), bool isManual)
 	{
-		buffer = 0;
-		charsRecvd = 0;
 		callback = theCB;
-		randomString = strdup(rStr);
-	}
-	~RecvThreadStruct()
-	{
-		free(buffer);
-		free(randomString);
-	}
-	void receiveData(const char* data, int length)
-	{
-		buffer = (char*)malloc(length + 1);
-		memcpy(buffer, data, length);
-		buffer[length] = 0;
-		charsRecvd = length;
+		randomString = rStr;
+		sendingIsManual = isManual;
 	}
 
 private:
-	RecvThreadStruct(){}
+	RecvThreadArguments(){}
 };
 
-
-
-void nullMailCallback(RecvMailCodes dummy);
 
 extern HANDLE recvThreadMutex;
 
 
 //parameter is a RecvThreadStruct pointer
 DWORD WINAPI recvThread(LPVOID lpParam);
+DWORD recvThreadFunction(RecvThreadArguments* theArgs, std::string* optionalOutString);
 
-enum NeedServerSuccess
-{
-	NEED_SERVER_GOT_NONE = 0,
-	NEED_SERVER_GOT_SALMON = 1,
-	NEED_SERVER_GOT_VPNGATE = 2
-};
-NeedServerSuccess needServer(const ConnectAnyVPNAttemptResult& res, std::vector<VPNInfo>* VPNGateServers);
+std::wstring constructVPNListEmailForAndroid();
 
-#endif 
+#endif //_SALMON_EMAIL_INCLGUARD_H_

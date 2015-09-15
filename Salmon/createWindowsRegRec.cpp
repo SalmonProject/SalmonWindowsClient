@@ -26,150 +26,149 @@
 #include "salmon_utility.h"
 #include "email.h"
 #include "control_softether.h"
+#include "emailReplyCallbacks.h"
 
 void createWindowsRec(LPCWSTR className, HINSTANCE thisInstance)
 {
-//register with rec code
-wndwRegisterRecd = CreateWindowEx(
-	WS_EX_CLIENTEDGE,                   // Extended possibilites for variation 
-	className,         // Classname 
-	localizeConst(SALMON_REG_TITLE),       // Title Text 
-	WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, // default window 
-	CW_USEDEFAULT,       // Windows decides the position 
-	CW_USEDEFAULT,       // where the window ends up on the screen 
-	350,                 // The programs width 
-	296,                 // and height in pixels 
-	HWND_DESKTOP,        // The window is a child-window to desktop 
-	NULL,                // No menu 
-	thisInstance,       // Program Instance handler 
-	NULL                 // No Window Creation data 
-	);
+	//register with rec code
+	wndwRegisterRecd = CreateWindowEx(
+		WS_EX_CLIENTEDGE,                   // Extended possibilites for variation 
+		className,         // Classname 
+		localizeConst(SALMON_REG_TITLE),       // Title Text 
+		WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, // default window 
+		CW_USEDEFAULT,       // Windows decides the position 
+		CW_USEDEFAULT,       // where the window ends up on the screen 
+		350,                 // The programs width 
+		296,                 // and height in pixels 
+		HWND_DESKTOP,        // The window is a child-window to desktop 
+		NULL,                // No menu 
+		thisInstance,       // Program Instance handler 
+		NULL                 // No Window Creation data 
+		);
 
-const int sttcRegRecCodeY = 4;
-sttcRegRecCode=CreateWindow(
-	L"STATIC",   // predefined class
-	localizeConst(REC_CODE_FROM_FRIEND),// text
-	WS_VISIBLE | WS_CHILD,  // styles
-	10,         // starting x position
-	sttcRegRecCodeY,         // starting y position
-	310,        // width
-	16,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed
+	const int sttcRegRecCodeY = 4;
+	sttcRegRecCode = CreateWindow(
+		L"STATIC",   // predefined class
+		localizeConst(REC_CODE_FROM_FRIEND),// text
+		WS_VISIBLE | WS_CHILD,  // styles
+		10,         // starting x position
+		sttcRegRecCodeY,         // starting y position
+		310,        // width
+		16,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed
 
-const int textRegRecCodeY = sttcRegRecCodeY + 22;
-textRegRecCode = CreateWindowEx(
-	WS_EX_CLIENTEDGE,
-	L"EDIT",   // predefined class
-	L"",       // text
-	WS_VISIBLE | WS_CHILD | WS_TABSTOP,  // styles
-	10,         // starting x position
-	textRegRecCodeY,         // starting y position
-	96,        // width
-	23,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed;
+	const int textRegRecCodeY = sttcRegRecCodeY + 22;
+	textRegRecCode = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		L"EDIT",   // predefined class
+		L"",       // text
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP,  // styles
+		10,         // starting x position
+		textRegRecCodeY,         // starting y position
+		96,        // width
+		23,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed;
 
-const int sttcRecEmailAddrY = textRegRecCodeY + 28;
-sttcRecEmailAddr=CreateWindow(
-	L"STATIC",   // predefined class
-	localizeConst(PROMPT_EMAIL_ADDR_VERBOSE),// text
-	WS_VISIBLE | WS_CHILD ,  // styles
-	10,         // starting x position
-	sttcRecEmailAddrY,         // starting y position
-	310,        // width
-	80,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed
+	const int sttcRecEmailAddrY = textRegRecCodeY + 28;
+	sttcRecEmailAddr = CreateWindow(
+		L"STATIC",   // predefined class
+		localizeConst(PROMPT_EMAIL_ADDR_VERBOSE),// text
+		WS_VISIBLE | WS_CHILD,  // styles
+		10,         // starting x position
+		sttcRecEmailAddrY,         // starting y position
+		310,        // width
+		80,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed
 
-const int textRecEmailAddrY = sttcRecEmailAddrY + 86;
-textRecEmailAddr = CreateWindowEx(
-	WS_EX_CLIENTEDGE,
-	L"EDIT",   // predefined class
-	L"",       // text
-	WS_VISIBLE | WS_CHILD | WS_TABSTOP,  // styles
-	10,         // starting x position
-	textRecEmailAddrY,         // starting y position
-	310,        // width
-	23,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed;
+	const int textRecEmailAddrY = sttcRecEmailAddrY + 86;
+	textRecEmailAddr = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		L"EDIT",   // predefined class
+		L"",       // text
+		WS_VISIBLE | WS_CHILD | WS_TABSTOP,  // styles
+		10,         // starting x position
+		textRecEmailAddrY,         // starting y position
+		310,        // width
+		23,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed;
 
-const int sttcRecEmailPWY = textRecEmailAddrY + 28;
-sttcRecEmailPW=CreateWindow(
-	L"STATIC",   // predefined class
-	localizeConst(PROMPT_EMAIL_PW_VERBOSE),// text
-	WS_VISIBLE | WS_CHILD,  // styles
-	10,         // starting x position
-	sttcRecEmailPWY,         // starting y position
-	240,        // width
-	16,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed
+	const int sttcRecEmailPWY = textRecEmailAddrY + 28;
+	sttcRecEmailPW = CreateWindow(
+		L"STATIC",   // predefined class
+		localizeConst(PROMPT_EMAIL_PW_VERBOSE),// text
+		WS_VISIBLE | WS_CHILD,  // styles
+		10,         // starting x position
+		sttcRecEmailPWY,         // starting y position
+		240,        // width
+		16,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed
 
-bttnIsntThisUnsafeRecReg = CreateWindow(
-	L"BUTTON",   // predefined class
-	localizeConst(ISNT_THIS_UNSAFE_BUTTON),// text
-	WS_VISIBLE | WS_CHILD,  // styles
-	190,         // starting x position
-	sttcRecEmailPWY - 2,         // starting y position
-	110,        // width
-	19,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed
+	bttnIsntThisUnsafeRecReg = CreateWindow(
+		L"BUTTON",   // predefined class
+		localizeConst(ISNT_THIS_UNSAFE_BUTTON),// text
+		WS_VISIBLE | WS_CHILD,  // styles
+		190,         // starting x position
+		sttcRecEmailPWY - 2,         // starting y position
+		110,        // width
+		19,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed
 
-const int textRecEmailPWY = sttcRecEmailPWY + 20;
-textRecEmailPW = CreateWindowEx(
-	WS_EX_CLIENTEDGE,
-	L"EDIT",   // predefined class
-	L"",       // text
-	WS_VISIBLE | WS_CHILD | ES_PASSWORD | WS_TABSTOP,  // styles
-	10,         // starting x position
-	textRecEmailPWY,         // starting y position
-	310,        // width
-	26,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed;
+	const int textRecEmailPWY = sttcRecEmailPWY + 20;
+	textRecEmailPW = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		L"EDIT",   // predefined class
+		L"",       // text
+		WS_VISIBLE | WS_CHILD | ES_PASSWORD | WS_TABSTOP,  // styles
+		10,         // starting x position
+		textRecEmailPWY,         // starting y position
+		310,        // width
+		26,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed;
 
-const int bttnRecRegSubmitY = textRecEmailPWY + 34;
-bttnRecRegSubmit = CreateWindow(
-	L"BUTTON",   // predefined class
-	localizeConst(SUBMIT_REGISTRATION),       // text
-	WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON | WS_TABSTOP,  // styles
-	96,         // starting x position
-	bttnRecRegSubmitY,         // starting y position
-	140,        // width
-	32,        // height
-	wndwRegisterRecd,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
-	NULL);      // pointer not needed
-
-
-SendMessage(sttcRegRecCode, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(textRegRecCode, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(sttcRecEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(textRecEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(sttcRecEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(bttnIsntThisUnsafeRecReg, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(textRecEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(bttnRecRegSubmit, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	const int bttnRecRegSubmitY = textRecEmailPWY + 34;
+	bttnRecRegSubmit = CreateWindow(
+		L"BUTTON",   // predefined class
+		localizeConst(SUBMIT_REGISTRATION),       // text
+		WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON | WS_TABSTOP,  // styles
+		96,         // starting x position
+		bttnRecRegSubmitY,         // starting y position
+		140,        // width
+		32,        // height
+		wndwRegisterRecd,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterRecd, GWL_HINSTANCE),
+		NULL);      // pointer not needed
 
 
+	SendMessage(sttcRegRecCode, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(textRegRecCode, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(sttcRecEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(textRecEmailAddr, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(sttcRecEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(bttnIsntThisUnsafeRecReg, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(textRecEmailPW, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(bttnRecRegSubmit, WM_SETFONT, (WPARAM)gFontHandle, 0);
 }
 
 
@@ -184,50 +183,6 @@ void enableAllButtonsRecReg()
 }
 
 
-RecvThreadStruct* regRecRecvStruct;
-
-void recRegMailCallback(RecvMailCodes successful)
-{
-	if (successful == RECV_MAIL_SUCCESS)
-	{
-		ShowWindow(wndwWaiting, SW_HIDE);
-		SetFocus(wndwRegisterRecd);
-
-		//if the registration succeeded, the dir. gives us a VPN password, which is VPN_PASSWORD_LENGTH letters a-z. (and that's it).
-		//so, presence of a $ indicates an error that should be MessageBox'd.
-		if (!strchr(regRecRecvStruct->buffer, '$'))
-		{
-			ShowWindow(wndwRegisterRecd, SW_HIDE);
-			ShowWindow(wndwMain, SW_SHOW);
-			SetFocus(wndwMain);
-
-			//write an initial config file. we have the VPN password, and other than that it's just defaults.
-			FILE* writeConfig = openConfigFile("SalmonConfig.txt", "wt");
-			fwrite(regRecRecvStruct->buffer, 1, VPN_BASE_PASSWORD_LENGTH, writeConfig);
-			fputc('\n', writeConfig); fputc('0', writeConfig); fputc('\n', writeConfig); fputc('0', writeConfig); fputc('\n', writeConfig);
-			fclose(writeConfig);
-
-			trustLevelDisplayAndWriteFile(5);
-
-			//this is an implicit $7 from the directory server.
-			localizeDirServMsgBox("$7", L"");
-		}
-		else
-			localizeDirServMsgBox(regRecRecvStruct->buffer, localizeConst(ERROR_STR));
-
-		enableAllButtonsRecReg();
-		delete regRecRecvStruct;
-	}
-	else if (successful == RECV_MAIL_FAIL)
-	{
-		ShowWindow(wndwWaiting, SW_HIDE);
-		SetFocus(wndwRegisterRecd);
-		MessageBox(NULL, localizeConst(ABORT_REG_NO_RESPONSE), localizeConst(ERROR_STR), MB_OK);
-		enableAllButtonsRecReg();
-		delete regRecRecvStruct;
-	}
-}
-
 void winProcRecd(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (message == WM_COMMAND && (HWND)lParam == bttnRecRegSubmit)
@@ -235,20 +190,16 @@ void winProcRecd(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//recdRegistration
 		//nationality
 		//recommendation code
-		WCHAR toSend[100];
-			
-		wcscpy(toSend, L"recdRegistration\n");
-		wcscat(toSend, countryFromLanguage(gChosenLanguage));
-		wcscat(toSend, L"\n");
+		std::wstring toSend = L"recdRegistration\n" + std::wstring(countryFromLanguage(gChosenLanguage)) + L"\n";
 
 		WCHAR theRecCode[20];
 		Edit_GetText(textRegRecCode, theRecCode, 20);
-		wcscat(toSend, theRecCode);
 		if (wcslen(theRecCode) != 7)
 		{
 			MessageBox(NULL, localizeConst(WRONG_RECCODE_LENGTH), localizeConst(ERROR_STR), MB_OK);
 			return;
 		}
+		toSend += theRecCode;
 
 		WCHAR getLogin[EMAIL_ADDR_BUFSIZE];
 		WCHAR getPassword[EMAIL_PASSWORD_BUFSIZE];
@@ -258,21 +209,11 @@ void winProcRecd(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		wcstombs(gUserEmailPassword, getPassword, EMAIL_PASSWORD_BUFSIZE);
 
 		//ensure address ends in @ something we can handle - if not, TELL THEM!
-		if (!(strstr(gUserEmailAccount, "@gmail.com") || strstr(gUserEmailAccount, "@hotmail.com") || strstr(gUserEmailAccount, "@outlook.com") || strstr(gUserEmailAccount, "@yahoo.com")))
+		if (!validateEmailAddress(gUserEmailAccount))
 		{
 			MessageBox(NULL, localizeConst(INVALID_EMAIL_ADDR), localizeConst(ERROR_STR), MB_OK);
 			return;
 		}
-		disableAllButtonsRecReg();
-
-		char ourRandStr[51];
-		if (sendMail(toSend, ourRandStr) == false)
-		{
-			MessageBox(NULL, localizeConst(FAILED_TO_SEND_EMAIL), localizeConst(ERROR_STR), MB_OK);
-			enableAllButtonsRecReg();
-			return;
-		}
-
 		//save their email account name (but not password) to file, so it can be pre-filled next time
 		FILE* writeEmailSetting = openConfigFile("CurrentEmail.txt", "wt");
 		if (writeEmailSetting)
@@ -281,11 +222,8 @@ void winProcRecd(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			fclose(writeEmailSetting);
 		}
 
-		regRecRecvStruct = new RecvThreadStruct(ourRandStr, recRegMailCallback);
-		CreateThread(NULL, 0, recvThread, regRecRecvStruct, 0, NULL);
+		sendMessageToDirServ(toSend, recRegMailCallback);
 	}
 	else if (message == WM_COMMAND && (HWND)lParam == bttnIsntThisUnsafeRecReg)
-	{
 		MessageBox(NULL, localizeConst(WHY_EMAIL_PASSWORD), L"", MB_OK);
-	}	
 }

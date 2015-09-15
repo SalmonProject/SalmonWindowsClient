@@ -26,53 +26,52 @@
 
 void createWindowsWaiting(LPCWSTR className, HINSTANCE thisInstance)
 {
-wndwWaiting = CreateWindowEx(
-	WS_EX_TOPMOST,    // Extended possibilites for variation 
-	className,         // Classname 
-	localizeConst(SALMON_PLEASE_WAIT_TITLE),       // Title Text 
-	WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, // default window 
-	CW_USEDEFAULT,       // Windows decides the position 
-	CW_USEDEFAULT,       // where the window ends up on the screen 
-	336,                 // The programs width 
-	220,                 // and height in pixels 
-	HWND_DESKTOP,        // The window is a child-window to desktop 
-	NULL,                // No menu 
-	thisInstance,       // Program Instance handler 
-	NULL                 // No Window Creation data 
-	);
+	wndwWaiting = CreateWindowEx(
+		WS_EX_TOPMOST,    // Extended possibilites for variation 
+		className,         // Classname 
+		localizeConst(SALMON_PLEASE_WAIT_TITLE),       // Title Text 
+		WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, // default window 
+		CW_USEDEFAULT,       // Windows decides the position 
+		CW_USEDEFAULT,       // where the window ends up on the screen 
+		336,                 // The programs width 
+		220,                 // and height in pixels 
+		HWND_DESKTOP,        // The window is a child-window to desktop 
+		NULL,                // No menu 
+		thisInstance,       // Program Instance handler 
+		NULL                 // No Window Creation data 
+		);
 
-//waiting for directory server to respond
-sttcWaiting = CreateWindow(
-	L"STATIC",   // predefined class
-	localizeConst(WAITING_FOR_RESPONSE),// text
-	WS_VISIBLE | WS_CHILD | SS_CENTER,  // styles
-	2,         // starting x position
-	4,         // starting y position
-	320,        // width
-	120,        // height
-	wndwWaiting,       // parent window
-	NULL,       // No menu
-	(HINSTANCE)GetWindowLong(wndwWaiting, GWL_HINSTANCE),
-	NULL);      // pointer not needed
+	//waiting for directory server to respond
+	sttcWaiting = CreateWindow(
+		L"STATIC",   // predefined class
+		localizeConst(WAITING_FOR_RESPONSE),// text
+		WS_VISIBLE | WS_CHILD | SS_CENTER,  // styles
+		2,         // starting x position
+		4,         // starting y position
+		320,        // width
+		120,        // height
+		wndwWaiting,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwWaiting, GWL_HINSTANCE),
+		NULL);      // pointer not needed
 
-SetWindowPos(sttcWaiting, HWND_BOTTOM, 1, 2, 3, 4, SWP_NOMOVE | SWP_NOSIZE);
+	SetWindowPos(sttcWaiting, HWND_BOTTOM, 1, 2, 3, 4, SWP_NOMOVE | SWP_NOSIZE);
 
-bttnCancelWaiting = CreateWindow(
-	L"BUTTON",   // predefined class
-	localizeConst(CANCEL_BUTTON),       // text
-	WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles
-	110,         // starting x position
-	130,         // starting y position
-	100,        // width
-	40,        // height
-	wndwWaiting,       // parent window
-	NULL,       // No menu
-	(HINSTANCE)GetWindowLong(wndwRegisterSocial, GWL_HINSTANCE),
-	NULL);      // pointer not needed
+	bttnCancelWaiting = CreateWindow(
+		L"BUTTON",   // predefined class
+		localizeConst(CANCEL_BUTTON),       // text
+		WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles
+		110,         // starting x position
+		130,         // starting y position
+		100,        // width
+		40,        // height
+		wndwWaiting,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwRegisterSocial, GWL_HINSTANCE),
+		NULL);      // pointer not needed
 
-SendMessage(bttnCancelWaiting, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(sttcWaiting, WM_SETFONT, (WPARAM)gFontHandle, 0);
-
+	SendMessage(bttnCancelWaiting, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(sttcWaiting, WM_SETFONT, (WPARAM)gFontHandle, 0);
 }
 
 extern void enableAllButtonsMain();
@@ -93,4 +92,3 @@ void winProcWaiting(HWND theHwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		enableAllButtonsSocReg();
 	}
 }
-

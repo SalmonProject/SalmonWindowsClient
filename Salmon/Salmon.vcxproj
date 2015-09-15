@@ -185,9 +185,12 @@
     <ClCompile Include="createWindowsLocale.cpp" />
     <ClCompile Include="createWindowsLogin.cpp" />
     <ClCompile Include="createWindowsMain.cpp" />
+    <ClCompile Include="createWindowsManualEmail.cpp" />
     <ClCompile Include="createWindowsRegRec.cpp" />
     <ClCompile Include="createWindowsRegSoc.cpp" />
     <ClCompile Include="createWindowsWaiting.cpp" />
+    <ClCompile Include="emailReplyCallbacks.cpp" />
+    <ClCompile Include="manual_or_blocking_email.cpp" />
     <ClCompile Include="pipefile.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -218,6 +221,8 @@
     <ClInclude Include="..\Wrapper\cImap.hpp" />
     <ClInclude Include="..\Wrapper\cPop3.hpp" />
     <ClInclude Include="..\Wrapper\cSmtp.hpp" />
+    <ClInclude Include="emailReplyCallbacks.h" />
+    <ClInclude Include="manual_or_blocking_email.h" />
     <ClInclude Include="pipefile.h" />
     <ClInclude Include="salmon_config.h" />
     <ClInclude Include="connect_attempt.h" />

@@ -41,68 +41,67 @@ No							No					Show text only
 void createWindowsLocale(LPCWSTR className, HINSTANCE thisInstance)
 {
 
-wndwLocaleSelect = CreateWindowEx(
-	0,//WS_EX_CLIENTEDGE, // Extended possibilites for variation 
-	className,         // Classname 
-	L"Select language", //haha, wait, right... localizeConst(SELECT_LANGUAGE_TITLE),       // Title Text 
-	WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, // default window 
-	CW_USEDEFAULT,       // Windows decides the position 
-	CW_USEDEFAULT,       // where the window ends up on the screen 
-	250,                 // The programs width 
-	190,                 // and height in pixels 
-	HWND_DESKTOP,        // The window is a child-window to desktop 
-	NULL,                // No menu 
-	thisInstance,       // Program Instance handler 
-	NULL                 // No Window Creation data 
-	);
+	wndwLocaleSelect = CreateWindowEx(
+		0,//WS_EX_CLIENTEDGE, // Extended possibilites for variation 
+		className,         // Classname 
+		L"Select language", //haha, wait, right... localizeConst(SELECT_LANGUAGE_TITLE),       // Title Text 
+		WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX, // default window 
+		CW_USEDEFAULT,       // Windows decides the position 
+		CW_USEDEFAULT,       // where the window ends up on the screen 
+		250,                 // The programs width 
+		190,                 // and height in pixels 
+		HWND_DESKTOP,        // The window is a child-window to desktop 
+		NULL,                // No menu 
+		thisInstance,       // Program Instance handler 
+		NULL                 // No Window Creation data 
+		);
 
-const int bttnEnglishY = 20;
-//initial language selection window
-bttnEnglish = CreateWindow(
-	L"BUTTON",   // predefined class
-	L"English",       // text
-	WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles
-	68,         // starting x position
-	bttnEnglishY,         // starting y position
-	100,        // width
-	30,        // height
-	wndwLocaleSelect,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwLocaleSelect, GWL_HINSTANCE),
-	NULL);      // pointer not needed;
+	const int bttnEnglishY = 20;
+	//initial language selection window
+	bttnEnglish = CreateWindow(
+		L"BUTTON",   // predefined class
+		L"English",       // text
+		WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles
+		68,         // starting x position
+		bttnEnglishY,         // starting y position
+		100,        // width
+		30,        // height
+		wndwLocaleSelect,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwLocaleSelect, GWL_HINSTANCE),
+		NULL);      // pointer not needed;
 
-const int bttnChineseY = bttnEnglishY + 40;
-bttnChinese = CreateWindow(
-	L"BUTTON",   // predefined class
-	L"中文",       // text
-	WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles
-	68,         // starting x position
-	bttnChineseY,         // starting y position
-	100,        // width
-	30,        // height
-	wndwLocaleSelect,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwLocaleSelect, GWL_HINSTANCE),
-	NULL);      // pointer not needed;
+	const int bttnChineseY = bttnEnglishY + 40;
+	bttnChinese = CreateWindow(
+		L"BUTTON",   // predefined class
+		L"中文",       // text
+		WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles
+		68,         // starting x position
+		bttnChineseY,         // starting y position
+		100,        // width
+		30,        // height
+		wndwLocaleSelect,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwLocaleSelect, GWL_HINSTANCE),
+		NULL);      // pointer not needed;
 
-const int bttnPersianY = bttnChineseY + 40;
-bttnPersian = CreateWindow(
-	L"BUTTON",   // predefined class
-	L"فارسی",       // text
-	WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON | WS_EX_RTLREADING,  // styles
-	68,         // starting x position
-	bttnPersianY,         // starting y position
-	100,        // width
-	30,        // height
-	wndwLocaleSelect,       // parent window
-	NULL,       // No menu
-	(HINSTANCE) GetWindowLong(wndwLocaleSelect, GWL_HINSTANCE),
-	NULL);      // pointer not needed;
+	const int bttnPersianY = bttnChineseY + 40;
+	bttnPersian = CreateWindow(
+		L"BUTTON",   // predefined class
+		L"فارسی",       // text
+		WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON | WS_EX_RTLREADING,  // styles
+		68,         // starting x position
+		bttnPersianY,         // starting y position
+		100,        // width
+		30,        // height
+		wndwLocaleSelect,       // parent window
+		NULL,       // No menu
+		(HINSTANCE)GetWindowLong(wndwLocaleSelect, GWL_HINSTANCE),
+		NULL);      // pointer not needed;
 
-SendMessage(bttnEnglish, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(bttnChinese, WM_SETFONT, (WPARAM)gFontHandle, 0);
-SendMessage(bttnPersian, WM_SETFONT, (WPARAM)gFontHandle, 0);
-
+	SendMessage(bttnEnglish, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(bttnChinese, WM_SETFONT, (WPARAM)gFontHandle, 0);
+	SendMessage(bttnPersian, WM_SETFONT, (WPARAM)gFontHandle, 0);
 }
 
 

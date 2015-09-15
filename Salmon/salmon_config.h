@@ -44,4 +44,7 @@ void writeSConfigFromKnownServers();
 void writeTrustToFile(int trust);
 int readTrustFromFile();
 
-#endif 
+bool recallManualEmailStatus();
+void saveManualEmailStatus(bool currentlyManual);
+
+#endif //_SALMON_INCL_GUARD_CONFIGMAIL_H_

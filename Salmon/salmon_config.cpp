@@ -26,7 +26,9 @@
 #include <process.h>
 #include <set>
 using std::set;
+#include <string>
 using std::string;
+#include <vector>
 using std::vector;
 
 #include "../Wrapper/cSmtp.hpp"
@@ -43,31 +45,17 @@ using std::vector;
 #include "email.h"
 #include "salmon_config.h"
 
-bool operator<(const VPNInfo& a, const VPNInfo& b)
-{
-	return a.score < b.score;
-}
-
-//the normal sorting doesn't take consecutive failures into account. this is fine, because
-//the connection attempt logic has other mechanisms for not constantly retrying the likely-failed
-//ones. however, for sending the email to an android user, we want all of the topmost entries to
-//be ones that were online last time we checked.
-bool compWithFailure(const VPNInfo& a, const VPNInfo& b)
-{
-	return a.score - 10000 * a.failureCount < b.score - b.failureCount * 10000;
-}
-
 
 void writeSConfigFromKnownServers()
 {
 	WaitForSingleObject(gServerInfoMutex, INFINITE);
-	sort(knownServers.begin(), knownServers.end());
+	sort(gKnownServers.begin(), gKnownServers.end());
 	FILE* SConfig = openConfigFile("SConfig.txt", "wt");
 
-	for (int i = 0; i < knownServers.size(); i++)
+	for (int i = 0; i < gKnownServers.size(); i++)
 	{
-		knownServers[i].score = knownServers[i].bandwidth - knownServers[i].rtt;
-		VPNInfo curServer = knownServers[i];
+		gKnownServers[i].score = gKnownServers[i].bandwidth - gKnownServers[i].rtt;
+		VPNInfo curServer = gKnownServers[i];
 		//write the IP addr
 		if (curServer.vpnGate)
 			fwrite("VPNGATE", 1, strlen("VPNGATE"), SConfig);
@@ -168,7 +156,7 @@ bool readExistingSConfig();
 //fourth, write to the SConfig file
 bool getSConfig()
 {
-	knownServers.clear();
+	gKnownServers.clear();
 
 	//NOTE don't use openConfigFile here
 	char wholeThing[300];
@@ -191,13 +179,7 @@ bool getSConfig()
 		return readExistingSConfig();
 }
 
-//quick little format documentation for SalmonConfig.txt:
-//gBaseVPNPassword
-//trust
-//seconds since epoch: last asked for a rec code
-//[ipaddr bw]
-//[ipaddr bw]
-//...
+
 bool generate_S_from_SalmonConfig()
 {
 	char wholeThing[300];
@@ -270,14 +252,14 @@ bool generate_S_from_SalmonConfig()
 		VPNInfo new_ip(new_ip_addr, new_ip_bandwidth, 50, new_ip_bandwidth - 50, 0, new_ip_psk);
 		new_ip.lastAttempt = 0;
 		new_ip.secondsTilNextAttempt = 2 * 24 * 3600 + rand() % (5 * 24 * 3600);
-		knownServers.push_back(new_ip);
+		gKnownServers.push_back(new_ip);
 	}
 	lineStream.close();
 
 	writeSConfigFromKnownServers();
 
-	for (int i = 0; i < knownServers.size(); i++)
-		createConnectionSetting(knownServers[i].addr);
+	for (int i = 0; i < gKnownServers.size(); i++)
+		createConnectionSetting(gKnownServers[i].addr);
 
 	return true;
 }
@@ -354,7 +336,7 @@ bool readExistingSConfig()
 		if (addrsSeen.count(curIP) == 0)
 		{
 			addrsSeen.insert(curIP);
-			knownServers.push_back(holder);
+			gKnownServers.push_back(holder);
 		}
 	}
 
@@ -381,7 +363,7 @@ bool readExistingSConfig()
 	gBaseVPNPassword[VPN_BASE_PASSWORD_LENGTH] = 0;
 	lineStream.close();
 
-	if (!knownServers.empty())
+	if (!gKnownServers.empty())
 		return true;
 	else
 		return false;
@@ -695,3 +677,23 @@ int readTrustFromFile()
 	return toReturn;
 }
 
+bool recallManualEmailStatus()
+{
+	FILE* manualEmailFile = openConfigFile("manualemail.txt", "rt");
+	if (!manualEmailFile)
+		return false;
+
+	char buf[10];
+	memset(buf, 0, 10);
+	fread(buf, 1, 9, manualEmailFile);
+	fclose(manualEmailFile);
+
+	return (strchr(buf, '1') != 0);
+}
+
+void saveManualEmailStatus(bool currentlyManual)
+{
+	FILE* manualEmailFile = openConfigFile("manualemail.txt", "wt");
+	fputc(currentlyManual ? '1' : '0', manualEmailFile);
+	fclose(manualEmailFile);
+}

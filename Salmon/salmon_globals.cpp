@@ -19,7 +19,7 @@
 
 #include <Windows.h>
 #include <vector>
-using std::vector;
+#include <string>
 
 #include "salmon_constants.h"
 #include "salmon_globals.h"
@@ -43,7 +43,14 @@ HANDLE gConnectionStateMutex;
 //Mutex for modifying knownServers
 HANDLE gServerInfoMutex;
 //Any server read from a config file, or returned by needServer, gets put in here.
-vector<VPNInfo> knownServers;
+std::vector<VPNInfo> gKnownServers;
+
+//The manual send/recv process involves the user interacting with GUI elements in between
+//the sending and receiving. This means that the thread that collects the response data
+//is the main GUI thread, so to get the data back to whatever piece of logic initiated the
+//send/recv, we need some global stuff. This class gathers it all together (and also covers
+//the case where the requesting logic wanted to block until the response arrived).
+ManualEmailGlobalHelper gManualEmail;
 
 //Full path for vpncmd.exe. load_vpncmdexe_Path() loads it.
 char g_vpncmdPath[VPNCMD_PATH_BUFSIZE];
@@ -59,10 +66,7 @@ SocialNetwork gCurSocialNetwork = SOCNET_NONE;
 //the user clicks "Cancel connecting", we simply set this flag to true. The connectionAttemptThread, and every iteration
 //of the tryConnectAnyServer() function it calls, checks this flag before attempting the next major step in the process
 //(making a specific connection attempt, or doing needServer()).
-bool cancelConnectionAttempt = false;
-
-//US, CN, IR: country TLD, in uppercase
-WCHAR globalLocale[3];
+bool gCancelConnectionAttempt = false;
 
 //Language the user chose in the wndwLocaleSelect window.
 SalmonLanguage gChosenLanguage = SALMON_LANGUAGE_EN;
